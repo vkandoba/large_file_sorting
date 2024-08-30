@@ -1,3 +1,4 @@
+using LargeFileSortingApp.Utils;
 using Microsoft.VisualBasic.CompilerServices;
 
 namespace LargeFileSortingApp.SortingService;
@@ -8,9 +9,10 @@ public class LinePairFromDump
     public LinePair LinePair { get; set; }
 }
 
+
 public class ChunkSortingService : ISortingService
 {
-    private const int ChunkSize = 10 * 64000; // ~250 MB, TODO: write method for spliting chunk by size
+    private const int ChunkSize =  256 * 1024 * 1024; // ~256 MB, TODO: write method for spliting chunk by size
 
     private InMemorySortingService inMemotySorting = new InMemorySortingService();
 
@@ -18,7 +20,7 @@ public class ChunkSortingService : ISortingService
 
     public IEnumerable<LinePair> Sort(IEnumerable<LinePair> lines)
     {
-        var chunks = lines.Chunk(ChunkSize);
+        var chunks = lines.ChunksBySize(ChunkSize);
         var files = new List<string>();
 
         if (!Directory.Exists(TempFolder))
