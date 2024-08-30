@@ -13,8 +13,8 @@ public static class EnumerableExtension
         long currentSize = 0;
         foreach (var line in lines)
         {
-            var strSize = Encoding.UTF8.GetByteCount(line.String);
-            var numberSize = Encoding.UTF8.GetByteCount(line.String);
+            var strSize = line.Number.Length * 2;
+            var numberSize = line.String.Length * 2;
             currentSize += strSize + numberSize;
             current.Add(line);
 
