@@ -13,6 +13,7 @@ public class LinePair : IComparable
         if (stringCompareResult != 0)
             return stringCompareResult;
         
+        //TODO: test and implement by correct way 
         return String.Compare(Number, other?.Number, StringComparison.Ordinal);
     }
 
