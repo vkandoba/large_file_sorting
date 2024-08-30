@@ -11,7 +11,7 @@ public class LinePairFromDump
 
 public class ChunkSortingService : ISortingService
 {
-    private const int ChunkSize =  256 * 1024 * 1024; // ~256 MB, TODO: write method for spliting chunk by size
+    private const int ChunkSize =  256 * 1024 * 1024; // ~256 MB
 
     private InMemorySortingService inMemotySorting = new InMemorySortingService();
 
@@ -44,6 +44,12 @@ public class ChunkSortingService : ISortingService
         foreach (var file in files)
         {
             File.Delete(file);
+        }
+
+        //TODO: race condition on double run at the same time
+        if (!Directory.EnumerateFileSystemEntries(TempFolder).Any())
+        {
+            Directory.Delete(TempFolder);
         }
     }
     
