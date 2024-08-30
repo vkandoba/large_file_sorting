@@ -9,7 +9,6 @@ public class LinePairFromDump
     public LinePair LinePair { get; set; }
 }
 
-
 public class ChunkSortingService : ISortingService
 {
     private const int ChunkSize =  256 * 1024 * 1024; // ~256 MB, TODO: write method for spliting chunk by size
