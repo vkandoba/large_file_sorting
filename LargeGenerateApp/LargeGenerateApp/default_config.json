@@ -1,0 +1,12 @@
+{
+  "File":
+  {
+    "Path": "/Users/vkandoba/data/default_test",
+    "MinSizeMb": 2048
+  },
+  "Line": 
+  {
+    "NumberSize": {"Min":  8, "Max":  16},
+    "TextSize": {"Min":  16, "Max":  32}
+  }
+}

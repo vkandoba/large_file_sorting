@@ -10,7 +10,12 @@ var lines = File.ReadLines("in.txt");
 
 var result = service.Do(lines);
 
-foreach (var line in result)
+File.AppendAllLines("out.txt", result);
+
+var firstResult = File.ReadAllLines("out.txt").Take(10);
+
+foreach (var line in firstResult)
 {
     Console.WriteLine(line);
 }
+
