@@ -17,6 +17,12 @@ public class LinePair : IComparable
         return String.Compare(Number, other?.Number, StringComparison.Ordinal);
     }
 
+    public static LinePair Parse(string line)
+    {
+        var tokens = line.Split('.'); // TODO: many points in string
+        return new LinePair { Number = tokens[0], String = tokens[1] };
+    }
+
     public string MakeString() => $"{Number}.{String}";
 }
 
