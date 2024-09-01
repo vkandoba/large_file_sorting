@@ -10,9 +10,9 @@ public class LinePair : IComparable
 
     private int _stringPartLength;
 
-    private ReadOnlySpan<char> Number => Line.AsSpan(0, _stringPartStartIndex - 1);
+    private ReadOnlySpan<char> NumberPart => Line.AsSpan(0, _stringPartStartIndex - 1);
 
-    private ReadOnlySpan<char> String => Line.AsSpan(_stringPartStartIndex, _stringPartLength);
+    private ReadOnlySpan<char> StringPart => Line.AsSpan(_stringPartStartIndex, _stringPartLength);
     
     private LinePair(string line, int startStringPart)
     {
@@ -31,16 +31,16 @@ public class LinePair : IComparable
     
     public int CompareTo(object? obj)
     {
-        var other = obj as LinePair; // TODO: check when obj is null
+        var other = obj as LinePair;
         if (other == null)
             return 1;
 
-        var stringCompareResult = this.String.CompareTo(other.String, StringComparison.Ordinal);
+        var stringCompareResult = this.StringPart.CompareTo(other.StringPart, StringComparison.Ordinal);
         if (stringCompareResult != 0)
             return stringCompareResult;
         
         if (_stringPartStartIndex == other._stringPartStartIndex)
-            return Number.CompareTo(other.Number, StringComparison.Ordinal);
+            return NumberPart.CompareTo(other.NumberPart, StringComparison.Ordinal);
 
         return _stringPartStartIndex.CompareTo(_stringPartStartIndex);
     }
