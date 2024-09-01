@@ -7,15 +7,15 @@ using System.Text;
 Console.WriteLine("Start generate");
 var rnd = new Random();
     
-var settings = GenerateSettings.ReadFromFile("default_config.json");
-var fileName = settings.File.Path;
+var config = GenerateSettings.ReadFromFile("default_config.json");
+var fileName = config.File.Path;
 Console.WriteLine(fileName);
 if (File.Exists(fileName))
 {
     File.Delete(fileName);
 }
 
-var lines = GenerateLines(settings);
+var lines = GenerateLines(config);
 File.AppendAllLines(fileName, lines);
 
 var fileAttr = new FileInfo(fileName);
@@ -23,29 +23,21 @@ Console.WriteLine($"{fileAttr.Length / 1024.0:n2} KB");
 
 IEnumerable<string> GenerateLines(GenerateSettings settings)
 {
-    var sizeInBytes = settings.File.MinSizeMb * 1024 * 1024; // TODO: move to constant
-    int actualSize = 0;
+    ulong sizeInBytes = (ulong)(settings.File.MinSizeMb * 1024 * 1024); // TODO: move to constant
+    ulong actualSizeInBytes = 0;
     
-    while (actualSize < sizeInBytes)
+    while (actualSizeInBytes < sizeInBytes)
     {
-        var numberLen = rnd.Next(2, 8) * 4;
-        var textLen = rnd.Next(10, 100);
-
-        var numberRaw = new byte[numberLen];
+        var numberRaw = (ulong) rnd.NextInt64(settings.Line.Number.Min, settings.Line.Number.Max);
+        var numberStr = numberRaw.ToString();
+        
+        var textLen = rnd.Next((int)settings.Line.TextSize.Min, (int)settings.Line.TextSize.Max);
         var textRaw = new byte[textLen];
-        rnd.NextBytes(numberRaw);
         rnd.NextBytes(textRaw);
-        actualSize += numberLen + textLen;
         var text = System.Text.Encoding.ASCII.GetString(textRaw.Select(n => (byte)(97 + n % 25)).ToArray());
         
-        StringBuilder numberBuilder = new StringBuilder(numberLen);
-        for (int p = 0; p < numberRaw.Length; p += 4)
-        {
-            var n = BitConverter.ToUInt32(numberRaw, p);
-            numberBuilder.Append(n);
-        }
-
-        yield return $"{numberBuilder}.{text}";
+        actualSizeInBytes += (ulong) (numberStr.Length + textLen);
+        yield return $"{numberStr}.{text}";
     }
 }
 
@@ -85,7 +77,7 @@ public class FileGenerateSettings
 public class LineGenerateSettings
 {
     [DataMember]
-    public LinePartGenerateSettings NumberSize { get; set; }
+    public LinePartGenerateSettings Number { get; set; }
 
     [DataMember]
     public LinePartGenerateSettings TextSize { get; set; }
@@ -95,8 +87,8 @@ public class LineGenerateSettings
 public class LinePartGenerateSettings
 {
     [DataMember]
-    public uint Min { get; set; }
+    public long Min { get; set; }
 
     [DataMember]
-    public uint Max { get; set; }
+    public long Max { get; set; }
 }
