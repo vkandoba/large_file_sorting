@@ -4,11 +4,13 @@ using System.Runtime.Serialization;
 using System.Runtime.Serialization.Json;
 using System.Text;
 
-Console.WriteLine("Start generate");
-var rnd = new Random();
-    
-var config = GenerateSettings.ReadFromFile("default_config.json");
+var config_file_name = "default_config.json";
+var config = GenerateSettings.ReadFromFile(config_file_name);
+Console.WriteLine($"Start generating. Config: {config_file_name}");
+Console.WriteLine($"Seed: {config.RandomSeed}. File size: {config.File.MinSizeMb} Mb");
+
 var fileName = config.File.Path;
+var rnd = new Random(config.RandomSeed);
 Console.WriteLine(fileName);
 if (File.Exists(fileName))
 {
@@ -19,7 +21,7 @@ var lines = GenerateLines(config);
 File.AppendAllLines(fileName, lines);
 
 var fileAttr = new FileInfo(fileName);
-Console.WriteLine($"{fileAttr.Length / 1024.0:n2} KB");
+Console.WriteLine($"Done. File: {fileName}. Actual size: {fileAttr.Length / (1024.0 * 1024.0):n2} Mb");
 
 IEnumerable<string> GenerateLines(GenerateSettings settings)
 {
@@ -45,7 +47,11 @@ IEnumerable<string> GenerateLines(GenerateSettings settings)
 public class GenerateSettings
 {
     [DataMember]
+    public int RandomSeed { get; set; }
+    
+    [DataMember]
     public FileGenerateSettings File { get; set; }
+ 
     [DataMember]
     public LineGenerateSettings Line { get; set; }
 

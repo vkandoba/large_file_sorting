@@ -1,12 +1,13 @@
 {
+  "RandomSeed": 42,
   "File":
   {
-    "Path": "/Users/vkandoba/data/default_test",
-    "MinSizeMb": 2048
+    "Path": "/Users/vkandoba/data/test_256_mb_30_250",
+    "MinSizeMb": 256
   },
   "Line": 
   {
-    "NumberSize": {"Min":  8, "Max":  16},
-    "TextSize": {"Min":  16, "Max":  32}
+    "Number": {"Min":  1000000, "Max":  922337203685477580},
+    "TextSize": {"Min":  30, "Max":  250}
   }
 }
