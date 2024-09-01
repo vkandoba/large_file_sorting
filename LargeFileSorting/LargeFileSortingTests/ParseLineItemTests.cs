@@ -12,7 +12,7 @@ public class ParseLineItemTests
         var item = LineItem.Parse("76635.Apple");
 
         Assert.That(item.Line, Is.EqualTo("76635.Apple"));
-        Assert.That(item.NumberPart.ToString(), Is.EqualTo("76635"));
+        Assert.That(item.Number.ToString(), Is.EqualTo("76635"));
         Assert.That(item.StringPart.ToString(), Is.EqualTo("Apple"));
     }
     
@@ -22,7 +22,7 @@ public class ParseLineItemTests
         var item = LineItem.Parse("76635.");
 
         Assert.That(item.Line, Is.EqualTo("76635."));
-        Assert.That(item.NumberPart.ToString(), Is.EqualTo("76635"));
+        Assert.That(item.Number.ToString(), Is.EqualTo("76635"));
         Assert.That(item.StringPart.ToString(), Is.EqualTo(""));
     }
 
@@ -32,32 +32,38 @@ public class ParseLineItemTests
         var item = LineItem.Parse("76635.Apple.Apple2.");
 
         Assert.That(item.Line, Is.EqualTo("76635.Apple.Apple2."));
-        Assert.That(item.NumberPart.ToString(), Is.EqualTo("76635"));
+        Assert.That(item.Number.ToString(), Is.EqualTo("76635"));
         Assert.That(item.StringPart.ToString(), Is.EqualTo("Apple.Apple2."));
     }
     
     [Test]
     public void ParseLineItemWhenNumberIsZero()
     {
-        var item = LineItem.Parse("76635.");
+        var item = LineItem.Parse("0.");
 
-        Assert.That(item.Line, Is.EqualTo("76635."));
-        Assert.That(item.NumberPart.ToString(), Is.EqualTo("76635"));
+        Assert.That(item.Line, Is.EqualTo("0."));
+        Assert.That(item.Number.ToString(), Is.EqualTo("0"));
+        Assert.That(item.StringPart.ToString(), Is.EqualTo(""));
+    }    
+
+    [Test]
+    public void ParseLineItemWhenNumberIsNegative()
+    {
+        var item = LineItem.Parse("-76635.");
+
+        Assert.That(item.Line, Is.EqualTo("-76635."));
+        Assert.That(item.Number.ToString(), Is.EqualTo("-76635"));
         Assert.That(item.StringPart.ToString(), Is.EqualTo(""));
     }    
     
+    //TODO: test for oversize number
+
     [Test]
     public void ParseLineItemWithoutDots()
     {
         Assert.Throws<ArgumentException>(() => LineItem.Parse("76635"));
     }
-   
-    [Test]
-    public void ParseLineWhenStartsFromZero()
-    {
-        Assert.Throws<ArgumentException>(() => LineItem.Parse("0013.Apple"));
-    }
-
+    
     [Test]
     public void ParseLineWhenNumberPartIsEmpty()
     {
