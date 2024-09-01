@@ -11,7 +11,7 @@ var service = new ChunkSortingService();
 
 var inFile = "/Users/vkandoba/data/test_1_gb_30_250";
 var textLines = File.ReadLines(inFile);
-var lines = textLines.Select(LinePair.Parse);
+var lines = textLines.Select(LineItem.Parse);
 var sortedLines = service.Sort(lines);
 var result = sortedLines.Select(l => l.Line);
 

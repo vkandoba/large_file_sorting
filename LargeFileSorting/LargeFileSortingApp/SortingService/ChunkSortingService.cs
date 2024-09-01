@@ -6,7 +6,7 @@ namespace LargeFileSortingApp.SortingService;
 public class LinePairFromDump
 {
     public string file { get; set; }
-    public LinePair LinePair { get; set; }
+    public LineItem LineItem { get; set; }
 }
 
 public class ChunkSortingService : ISortingService
@@ -17,7 +17,7 @@ public class ChunkSortingService : ISortingService
 
     private const string TempFolder = "tmp_dump";
 
-    public IEnumerable<LinePair> Sort(IEnumerable<LinePair> lines)
+    public IEnumerable<LineItem> Sort(IEnumerable<LineItem> lines)
     {
         var chunks = lines.ChunksBySize(ChunkSize);
         var files = new List<string>();
@@ -53,17 +53,17 @@ public class ChunkSortingService : ISortingService
         }
     }
     
-    private IEnumerable<LinePair> MergeFiles(string[] files)
+    private IEnumerable<LineItem> MergeFiles(string[] files)
     {
         var fileToIterators = new Dictionary<string, IEnumerator<string>>();
-        var heap = new PriorityQueue<LinePairFromDump, LinePair>();
+        var heap = new PriorityQueue<LinePairFromDump, LineItem>();
         foreach (var file in files)
         {
             var fileEnumerator = File.ReadLines(file).GetEnumerator();
             if (fileEnumerator.MoveNext())
             {
-                var current = LinePair.Parse(fileEnumerator.Current);
-                var item = new LinePairFromDump { file = file, LinePair = current };
+                var current = LineItem.Parse(fileEnumerator.Current);
+                var item = new LinePairFromDump { file = file, LineItem = current };
                 heap.Enqueue(item, current);
                 fileToIterators[file] = fileEnumerator;
             }
@@ -75,8 +75,8 @@ public class ChunkSortingService : ISortingService
             var iterator = fileToIterators[item.file];
             if (iterator.MoveNext())
             {
-                var nextCurrent = LinePair.Parse(iterator.Current);
-                var nextItem = new LinePairFromDump { file = item.file, LinePair = nextCurrent };
+                var nextCurrent = LineItem.Parse(iterator.Current);
+                var nextItem = new LinePairFromDump { file = item.file, LineItem = nextCurrent };
                 heap.Enqueue(nextItem, nextCurrent);
             }
         }

@@ -2,36 +2,36 @@ using System.Text;
 
 namespace LargeFileSortingApp.SortingService;
 
-public class LinePair : IComparable
+public class LineItem : IComparable
 {
     public readonly string Line;
+    
+    public ReadOnlySpan<char> NumberPart => Line.AsSpan(0, _stringPartStartIndex - 1);
 
+    public ReadOnlySpan<char> StringPart => Line.AsSpan(_stringPartStartIndex, _stringPartLength);
+    
     private int _stringPartStartIndex;
 
     private int _stringPartLength;
-
-    private ReadOnlySpan<char> NumberPart => Line.AsSpan(0, _stringPartStartIndex - 1);
-
-    private ReadOnlySpan<char> StringPart => Line.AsSpan(_stringPartStartIndex, _stringPartLength);
-    
-    private LinePair(string line, int startStringPart)
+   
+    private LineItem(string line, int startStringPart)
     {
         Line = line;
         _stringPartStartIndex = startStringPart;
         _stringPartLength = line.Length - startStringPart;
     }
     
-    public static LinePair Parse(string line)
+    public static LineItem Parse(string line)
     {
         var dotIndex = line.IndexOf('.');
         if (dotIndex == -1)
             throw new ArgumentException($"Failed to parse line: {line}");
-        return new LinePair(line, dotIndex + 1);
+        return new LineItem(line, dotIndex + 1);
     }
     
     public int CompareTo(object? obj)
     {
-        var other = obj as LinePair;
+        var other = obj as LineItem;
         if (other == null)
             return 1;
 

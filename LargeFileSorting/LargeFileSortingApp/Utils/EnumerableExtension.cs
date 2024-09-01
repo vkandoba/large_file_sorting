@@ -5,10 +5,10 @@ namespace LargeFileSortingApp.Utils;
 
 public static class EnumerableExtension
 {
-    public static IEnumerable<LinePair[]> ChunksBySize(this IEnumerable<LinePair> lines, int chunkSizeB)
+    public static IEnumerable<LineItem[]> ChunksBySize(this IEnumerable<LineItem> lines, int chunkSizeB)
     {
         //TODO: check that size_bytes greater than 0
-        IList<LinePair> current = new List<LinePair>(chunkSizeB / (2 * 1024));
+        IList<LineItem> current = new List<LineItem>(chunkSizeB / (2 * 1024));
 
         long currentSize = 0;
         foreach (var item in lines)

@@ -2,7 +2,7 @@ namespace LargeFileSortingApp.SortingService;
 
 public class InMemorySortingService : ISortingService
 {
-    public IEnumerable<LinePair> Sort(IEnumerable<LinePair> lines)
+    public IEnumerable<LineItem> Sort(IEnumerable<LineItem> lines)
     {
         var linePairsInMemory = lines.ToArray();
         Array.Sort(linePairsInMemory);
