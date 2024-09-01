@@ -6,7 +6,7 @@ using System.Text;
 
 var totalWatch = System.Diagnostics.Stopwatch.StartNew();
 
-var config_file_name = "default_config.json";
+var config_file_name = "default_config.json"; // TODO: get from CLI argument
 var config = GenerateSettings.ReadFromFile(config_file_name);
 Console.WriteLine($"Start generating");
 Console.WriteLine($"Config: {config_file_name} | Seed: {config.RandomSeed} | File size: {config.File.MinSizeMb} Mb");
@@ -41,6 +41,7 @@ IEnumerable<string> GenerateLines(GenerateSettings settings)
         var textLen = rnd.Next((int)settings.Line.TextSize.Min, (int)settings.Line.TextSize.Max);
         var textRaw = new byte[textLen];
         rnd.NextBytes(textRaw);
+        // TODO: get different utf-8 symbols from set
         var text = System.Text.Encoding.ASCII.GetString(textRaw.Select(n => (byte)(97 + n % 25)).ToArray());
         
         actualSizeInBytes += (ulong) (numberStr.Length + textLen);
@@ -48,6 +49,7 @@ IEnumerable<string> GenerateLines(GenerateSettings settings)
     }
 }
 
+// move to other file
 [DataContract]
 public class GenerateSettings
 {

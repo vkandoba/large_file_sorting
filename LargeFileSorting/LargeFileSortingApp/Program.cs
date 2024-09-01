@@ -3,11 +3,12 @@ using System.IO;
 using System.IO.Compression;
 using LargeFileSortingApp.SortingService;
 
+// TODO: handle exceptions
 var totalWatch = System.Diagnostics.Stopwatch.StartNew();
 
 var service = new ChunkSortingService();
 
-var inFile = "/Users/vkandoba/data/default_test.txt";
+var inFile = "/Users/vkandoba/data/test_50_gb_30_250";
 var textLines = File.ReadLines(inFile);
 var lines = textLines.Select(LinePair.Parse);
 var sortedLines = service.Sort(lines);
@@ -18,14 +19,13 @@ if (File.Exists(outputFile))
 {
     File.Delete(outputFile);
 }
-File.AppendAllLines("out.txt", result);
+File.AppendAllLines(outputFile, result);
 
 var total_ms = totalWatch.ElapsedMilliseconds;
 
-Console.WriteLine($"total exec time: {total_ms / 1000:N2} sec.\n");
+Console.WriteLine($"total exec time: {total_ms / 1000.0:N2} sec.\n");
 
 var firstResult = File.ReadLines("out.txt").Take(10);
-
 
 foreach (var line in firstResult)
 {
