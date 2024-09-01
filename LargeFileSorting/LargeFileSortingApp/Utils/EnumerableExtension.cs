@@ -19,7 +19,6 @@ public static class EnumerableExtension
 
             if (currentSize > chunkSizeB)
             {
-                // Console.WriteLine($"generate chunk of {current.Count} lines and {currentSize:n0} size");
                 yield return current.ToArray();
                 current.Clear();
                 currentSize = 0;
