@@ -31,10 +31,10 @@ public class ChunkSortingService : ISortingService
             var uniqueName = Guid.NewGuid().ToString(); // TODO: handle collision
             var sortedChunk = inMemotySorting.Sort(chunk);
             var dumpFile = Path.Combine(TempFolder, uniqueName);
-            File.AppendAllLines(dumpFile, sortedChunk.Select(x => x.MakeString()));
+            File.AppendAllLines(dumpFile, sortedChunk.Select(x => x.Line));
             files.Add(dumpFile);
         }
-
+        
         var result = MergeFiles(files.ToArray());
         foreach (var item in result)
         {

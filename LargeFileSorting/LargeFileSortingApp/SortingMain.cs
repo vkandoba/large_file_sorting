@@ -4,15 +4,16 @@ using System.IO.Compression;
 using LargeFileSortingApp.SortingService;
 
 // TODO: handle exceptions
+// TODO: profile memory for 1 GB
 var totalWatch = System.Diagnostics.Stopwatch.StartNew();
 
 var service = new ChunkSortingService();
 
-var inFile = "/Users/vkandoba/data/test_50_gb_30_250";
+var inFile = "/Users/vkandoba/data/test_1_gb_30_250";
 var textLines = File.ReadLines(inFile);
 var lines = textLines.Select(LinePair.Parse);
 var sortedLines = service.Sort(lines);
-var result = sortedLines.Select(l => l.MakeString());
+var result = sortedLines.Select(l => l.Line);
 
 var outputFile = "out.txt";
 if (File.Exists(outputFile))
