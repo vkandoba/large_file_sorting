@@ -4,7 +4,7 @@ using NUnit.Framework;
 namespace LargeFileSortingTests;
 
 [TestFixture]
-public class LineItemParseTests
+public class ParseLineItemTests
 {
     [Test]
     public void ParseLineItemTest()
@@ -35,7 +35,16 @@ public class LineItemParseTests
         Assert.That(item.NumberPart.ToString(), Is.EqualTo("76635"));
         Assert.That(item.StringPart.ToString(), Is.EqualTo("Apple.Apple2."));
     }
+    
+    [Test]
+    public void ParseLineItemWhenNumberIsZero()
+    {
+        var item = LineItem.Parse("76635.");
 
+        Assert.That(item.Line, Is.EqualTo("76635."));
+        Assert.That(item.NumberPart.ToString(), Is.EqualTo("76635"));
+        Assert.That(item.StringPart.ToString(), Is.EqualTo(""));
+    }    
     
     [Test]
     public void ParseLineItemWithoutDots()
@@ -49,4 +58,15 @@ public class LineItemParseTests
         Assert.Throws<ArgumentException>(() => LineItem.Parse("0013.Apple"));
     }
 
+    [Test]
+    public void ParseLineWhenNumberPartIsEmpty()
+    {
+        Assert.Throws<ArgumentException>(() => LineItem.Parse(".Apple"));
+    }
+
+    [Test]
+    public void ParseLineWhenIsNull()
+    {
+        Assert.Throws<ArgumentException>(() => LineItem.Parse(null));
+    }
 }

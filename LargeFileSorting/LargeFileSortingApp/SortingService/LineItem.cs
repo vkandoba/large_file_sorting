@@ -23,9 +23,21 @@ public class LineItem : IComparable
     
     public static LineItem Parse(string line)
     {
+        if (string.IsNullOrEmpty(line))
+            throw new ArgumentException($"Failed to parse line: {line}. It's null or empty");
+        
+        // TODO: Check that number is positive 
+        
         var dotIndex = line.IndexOf('.');
         if (dotIndex == -1)
-            throw new ArgumentException($"Failed to parse line: {line}");
+            throw new ArgumentException($"Failed to parse line: {line}. There no the dot character");
+        
+        if (line[0] == '0' && dotIndex != 1 ) // Numbers with lead zeros break the number comparing
+            throw new ArgumentException($"Failed to parse line: {line}. The number part starts from lead zero");
+
+        if (dotIndex == 0)
+            throw new ArgumentException($"Failed to parse line: {line}. The number part is empty");
+        
         return new LineItem(line, dotIndex + 1);
     }
     
@@ -39,9 +51,10 @@ public class LineItem : IComparable
         if (stringCompareResult != 0)
             return stringCompareResult;
         
-        if (_stringPartStartIndex == other._stringPartStartIndex)
+        if (_stringPartStartIndex == other._stringPartStartIndex) // In fact, comparing number length
             return NumberPart.CompareTo(other.NumberPart, StringComparison.Ordinal);
 
-        return _stringPartStartIndex.CompareTo(_stringPartStartIndex);
+        // TODO: maybe parse and place number in memory 
+        return _stringPartStartIndex.CompareTo(other._stringPartStartIndex);
     }
 }
