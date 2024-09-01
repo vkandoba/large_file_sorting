@@ -4,14 +4,15 @@ using System.Runtime.Serialization;
 using System.Runtime.Serialization.Json;
 using System.Text;
 
+var totalWatch = System.Diagnostics.Stopwatch.StartNew();
+
 var config_file_name = "default_config.json";
 var config = GenerateSettings.ReadFromFile(config_file_name);
-Console.WriteLine($"Start generating. Config: {config_file_name}");
-Console.WriteLine($"Seed: {config.RandomSeed}. File size: {config.File.MinSizeMb} Mb");
+Console.WriteLine($"Start generating");
+Console.WriteLine($"Config: {config_file_name} | Seed: {config.RandomSeed} | File size: {config.File.MinSizeMb} Mb");
 
 var fileName = config.File.Path;
 var rnd = new Random(config.RandomSeed);
-Console.WriteLine(fileName);
 if (File.Exists(fileName))
 {
     File.Delete(fileName);
@@ -20,8 +21,12 @@ if (File.Exists(fileName))
 var lines = GenerateLines(config);
 File.AppendAllLines(fileName, lines);
 
+var total_ms = totalWatch.ElapsedMilliseconds;
+
 var fileAttr = new FileInfo(fileName);
-Console.WriteLine($"Done. File: {fileName}. Actual size: {fileAttr.Length / (1024.0 * 1024.0):n2} Mb");
+Console.WriteLine($"Done | Time: {total_ms / 1000.0:N2} sec.");
+Console.WriteLine($"File: {fileName}");
+Console.WriteLine($"Actual size: {fileAttr.Length / (1024.0 * 1024.0):n2} Mb");
 
 IEnumerable<string> GenerateLines(GenerateSettings settings)
 {
