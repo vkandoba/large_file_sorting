@@ -6,8 +6,6 @@ public class LinePair : IComparable
 {
     public readonly string Line;
 
-    public readonly int MemorySizeInBytes; // max 1024 utf-8 characters
-
     private int _stringPartStartIndex;
 
     private int _stringPartLength;
@@ -16,10 +14,9 @@ public class LinePair : IComparable
 
     private ReadOnlySpan<char> String => Line.AsSpan(_stringPartStartIndex, _stringPartLength);
     
-    private LinePair(string line, int startStringPart, int sizeInBytes)
+    private LinePair(string line, int startStringPart)
     {
         Line = line;
-        MemorySizeInBytes = sizeInBytes;
         _stringPartStartIndex = startStringPart;
         _stringPartLength = line.Length - startStringPart;
     }
@@ -29,8 +26,7 @@ public class LinePair : IComparable
         var dotIndex = line.IndexOf('.');
         if (dotIndex == -1)
             throw new ArgumentException($"Failed to parse line: {line}");
-        var size = Encoding.UTF8.GetByteCount(line);
-        return new LinePair(line, dotIndex + 1, size);
+        return new LinePair(line, dotIndex + 1);
     }
     
     public int CompareTo(object? obj)

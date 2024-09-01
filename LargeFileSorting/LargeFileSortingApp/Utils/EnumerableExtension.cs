@@ -11,13 +11,11 @@ public static class EnumerableExtension
         IList<LinePair> current = new List<LinePair>(chunkSizeB / (2 * 1024));
 
         long currentSize = 0;
-        foreach (var line in lines)
+        foreach (var item in lines)
         {
-            // TODO: not effient way to determinate size of string. May be replaced to mean size of file
-            var strSize = Encoding.UTF8.GetByteCount(line.String);
-            var numberSize = Encoding.UTF8.GetByteCount(line.Number);
-            currentSize += strSize + numberSize;
-            current.Add(line);
+            var size = Encoding.UTF8.GetByteCount(item.Line); // TODO: not efficient way to determinate size of string. May be replaced to mean size of file
+            currentSize += size;
+            current.Add(item);
 
             if (currentSize > chunkSizeB)
             {
