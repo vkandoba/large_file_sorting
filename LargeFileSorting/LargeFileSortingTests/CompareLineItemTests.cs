@@ -4,7 +4,7 @@ using NUnit.Framework;
 namespace LargeFileSortingTests;
 
 [TestFixture]
-public class CompareLineItemTestS
+public class CompareLineItemTests
 {
     [Test]
     public void CompareLinesByStringPart()
