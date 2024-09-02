@@ -60,31 +60,42 @@ public class ChunkSortingService : ISortingService
     private IEnumerable<LineItem> MergeFiles(string[] files)
     {
         var fileToIterators = new Dictionary<string, IEnumerator<LineItem>>();
-        var heap = new PriorityQueue<LinePairFromDump, LineItem>();
-        foreach (var file in files)
+        try
         {
-            string.Intern(file);
-            var reader = new LineItemReader();
-            using var fileEnumerator = reader.ReadLines(file).GetEnumerator();
-            if (fileEnumerator.MoveNext())
+            var heap = new PriorityQueue<LinePairFromDump, LineItem>();
+            foreach (var file in files)
             {
-                var current = fileEnumerator.Current;
-                var item = new LinePairFromDump { file = file, LineItem = current };
-                heap.Enqueue(item, current);
-                fileToIterators[file] = fileEnumerator;
+                string.Intern(file);
+                var reader = new LineItemReader();
+                var fileEnumerator = reader.ReadLines(file).GetEnumerator();
+                if (fileEnumerator.MoveNext())
+                {
+                    var current = fileEnumerator.Current;
+                    var item = new LinePairFromDump { file = file, LineItem = current };
+                    heap.Enqueue(item, current);
+                    fileToIterators[file] = fileEnumerator;
+                }
+            }
+
+            while (heap.TryDequeue(out var item, out var pair))
+            {
+                yield return pair;
+                var iterator = fileToIterators[item.file];
+                if (iterator.MoveNext())
+                {
+                    var nextCurrent = iterator.Current;
+                    var nextItem = new LinePairFromDump { file = item.file, LineItem = nextCurrent };
+                    heap.Enqueue(nextItem, nextCurrent);
+                }
+            }
+        }
+        finally
+        {
+            foreach (var fileIterators in fileToIterators.Values)
+            {
+                fileIterators.Dispose();
             }
         }
 
-        while (heap.TryDequeue(out var item, out var pair))
-        {
-            yield return pair;
-            var iterator = fileToIterators[item.file];
-            if (iterator.MoveNext())
-            {
-                var nextCurrent = iterator.Current;
-                var nextItem = new LinePairFromDump { file = item.file, LineItem = nextCurrent };
-                heap.Enqueue(nextItem, nextCurrent);
-            }
-        }
     }
 }
