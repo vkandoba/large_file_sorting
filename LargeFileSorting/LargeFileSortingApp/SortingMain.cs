@@ -19,8 +19,8 @@ var totalWatch = System.Diagnostics.Stopwatch.StartNew();
 
 var service = new ChunkSortingService();
 
-var textLines = File.ReadLines(inputFile);
-var lines = textLines.Select(LineItem.Parse);
+var reader = new LineItemReader();
+var lines = reader.ReadLines(inputFile);
 var sortedLines = service.Sort(lines);
 
 if (File.Exists(outputFile))
@@ -31,18 +31,6 @@ if (File.Exists(outputFile))
 var writer = new LineItemWriter();
 writer.Write(outputFile, sortedLines);
 var total_ms = totalWatch.ElapsedMilliseconds;
-
-const int ReadBufferSize =  64 * 1024; // ~64 KB
-
-IEnumerable<LineItem> ReadItems(string file)
-{
-    using var stream = File.OpenRead(file);
-    using var reader = new StreamReader(stream, Encoding.UTF8, bufferSize: ReadBufferSize);
-    while (reader.ReadLine() is { } line)
-    {
-        yield return LineItem.Parse(line);
-    }
-}
 
 #if DEBUG
     Console.WriteLine($"Done. Exec time: {total_ms / 1000.0:N2} sec.\n");

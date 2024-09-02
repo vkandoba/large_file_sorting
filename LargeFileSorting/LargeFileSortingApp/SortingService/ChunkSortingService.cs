@@ -59,14 +59,16 @@ public class ChunkSortingService : ISortingService
     
     private IEnumerable<LineItem> MergeFiles(string[] files)
     {
-        var fileToIterators = new Dictionary<string, IEnumerator<string>>();
+        var fileToIterators = new Dictionary<string, IEnumerator<LineItem>>();
         var heap = new PriorityQueue<LinePairFromDump, LineItem>();
         foreach (var file in files)
         {
-            var fileEnumerator = File.ReadLines(file).GetEnumerator();
+            string.Intern(file);
+            var reader = new LineItemReader();
+            using var fileEnumerator = reader.ReadLines(file).GetEnumerator();
             if (fileEnumerator.MoveNext())
             {
-                var current = LineItem.Parse(fileEnumerator.Current);
+                var current = fileEnumerator.Current;
                 var item = new LinePairFromDump { file = file, LineItem = current };
                 heap.Enqueue(item, current);
                 fileToIterators[file] = fileEnumerator;
@@ -79,7 +81,7 @@ public class ChunkSortingService : ISortingService
             var iterator = fileToIterators[item.file];
             if (iterator.MoveNext())
             {
-                var nextCurrent = LineItem.Parse(iterator.Current);
+                var nextCurrent = iterator.Current;
                 var nextItem = new LinePairFromDump { file = item.file, LineItem = nextCurrent };
                 heap.Enqueue(nextItem, nextCurrent);
             }
