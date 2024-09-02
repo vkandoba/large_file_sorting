@@ -11,15 +11,13 @@
 
 env: 4 GB RAM, 480 GB SSD
 
-
 ### Ideas
 
-1. Set buffer size 64 Kb
+6. Factory
+5. Settings and
+4. Set init primary query
 2. Count size by reader position
 3. Parallel in-memory sorting for chunks
-4. Set init primary query
-5. Settings and
-6. Factory
 
 ### TODO 
 
