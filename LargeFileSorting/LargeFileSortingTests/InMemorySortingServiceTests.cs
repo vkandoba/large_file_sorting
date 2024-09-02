@@ -41,5 +41,34 @@ public class InMemorySortingServiceTests
 
         Assert.That(result, Is.EqualTo(expected).AsCollection);
     }
-    
+
+    [Test]
+    public void TestSortNumberLines()
+    {
+        var lines = new []
+        {
+            LineItem.Parse("-32."),
+            LineItem.Parse("415."),
+            LineItem.Parse("30433."),
+            LineItem.Parse("1."),
+            LineItem.Parse("2."),
+            LineItem.Parse("30432896523."),
+            LineItem.Parse("0."),
+        };
+
+        var result = _service.Sort(lines).Select(x => x.Line).ToArray();
+        
+        var expected = new[]
+        {
+            "-32.",
+            "0.",
+            "1.",
+            "2.",
+            "415.",
+            "30433.",
+            "30432896523."
+        };
+
+        Assert.That(result, Is.EqualTo(expected).AsCollection);
+    }
 }
