@@ -1,3 +1,5 @@
+using System.Text;
+
 namespace LargeGenerateApp;
 
 public class GenerateService
@@ -10,6 +12,10 @@ public class GenerateService
     
     private const int MbScale = 1024 * 1024;
 
+    private const string _english = "abcdefghijklmnopqrstuvwxyz";
+
+    private const string _serbian = "абвгдђежзијклљмнњопрстћуфхцчџ";
+    
     public GenerateService(
         Random random, 
         NumberPartGenerateSettings? numberLimits, 
@@ -24,21 +30,21 @@ public class GenerateService
     {
         ulong sizeInBytes = (ulong)Math.Round(totalSizeMb * MbScale);
         ulong actualSizeInBytes = 0;
-    
+
+        var symbols = $"{_english}{_serbian}";
         while (actualSizeInBytes < sizeInBytes)
         {
-            
-            var numberRaw = (ulong) _rnd.NextInt64(_numberLimits.Min, _numberLimits.Max);
-            var numberStr = numberRaw.ToString();
+            var number = (ulong) _rnd.NextInt64(_numberLimits.Min, _numberLimits.Max);
         
             var textLen = _rnd.Next(_textLenLimits.Min, _textLenLimits.Max);
-            var textRaw = new byte[textLen];
-            _rnd.NextBytes(textRaw);
-            // TODO: get different utf-8 symbols from set
-            var text = System.Text.Encoding.ASCII.GetString(textRaw.Select(n => (byte)(97 + n % 25)).ToArray());
-        
-            actualSizeInBytes += (ulong) (numberStr.Length + textLen);
-            yield return $"{numberStr}.{text}";
+            var indexes = new byte[textLen];
+            _rnd.NextBytes(indexes);
+
+            var text = new string(indexes.Select(n => symbols[(int)(n % symbols.Length)]).ToArray());
+            var textBytes = Encoding.UTF8.GetByteCount(text);
+            
+            actualSizeInBytes += (ulong) (number.ToString().Length + textBytes);
+            yield return $"{number}.{text}";
         }
     }
 }

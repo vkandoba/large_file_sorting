@@ -8,6 +8,6 @@
   "Line": 
   {
     "Number": {"Min":  1000000, "Max":  922337203685477580},
-    "TextSize": {"Min":  30, "Max":  250}
+    "TextPartSize": {"Min":  30, "Max":  250}
   }
 }
