@@ -1,4 +1,5 @@
-﻿using LargeFileSortingApp.SortingService;
+﻿using LargeFileSortingApp;
+using LargeFileSortingApp.SortingService;
 using NUnit.Framework;
 
 namespace LargeFileSortingTests;

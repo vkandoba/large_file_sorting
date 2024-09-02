@@ -1,6 +1,4 @@
-using System.Text;
-
-namespace LargeFileSortingApp.SortingService;
+namespace LargeFileSortingApp;
 
 public class LineItem : IComparable
 {

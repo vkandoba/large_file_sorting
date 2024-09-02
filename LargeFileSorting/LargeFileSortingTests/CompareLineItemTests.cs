@@ -1,3 +1,4 @@
+using LargeFileSortingApp;
 using LargeFileSortingApp.SortingService;
 using NUnit.Framework;
 

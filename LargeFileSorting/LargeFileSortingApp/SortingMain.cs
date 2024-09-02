@@ -1,4 +1,7 @@
 ﻿// See https://aka.ms/new-console-template for more information
+
+using System.Text;
+using LargeFileSortingApp;
 using LargeFileSortingApp.SortingService;
 
 // TODO: handle exceptions
@@ -26,6 +29,18 @@ if (File.Exists(outputFile))
 }
 File.AppendAllLines(outputFile, result);
 var total_ms = totalWatch.ElapsedMilliseconds;
+
+const int ReadBufferSize =  64 * 1024; // ~64 KB
+
+IEnumerable<LineItem> ReadItems(string file)
+{
+    using var stream = File.OpenRead(file);
+    using var reader = new StreamReader(stream, Encoding.UTF8, bufferSize: ReadBufferSize);
+    while (reader.ReadLine() is { } line)
+    {
+        yield return LineItem.Parse(line);
+    }
+}
 
 #if DEBUG
     Console.WriteLine($"Done. Exec time: {total_ms / 1000.0:N2} sec.\n");
