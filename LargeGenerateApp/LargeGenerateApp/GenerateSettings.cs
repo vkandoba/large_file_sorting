@@ -36,25 +36,35 @@ public class FileGenerateSettings
     public string DefaultName { get; set; }
 
     [DataMember]
-    public float MinSizeMb { get; set; }
+    public double MinSizeMb { get; set; } // May be small, like 0.2 MB
 }
 
 [DataContract]
 public class LineGenerateSettings
 {
     [DataMember]
-    public LinePartGenerateSettings Number { get; set; }
+    public NumberPartGenerateSettings? Number { get; set; }
 
     [DataMember]
-    public LinePartGenerateSettings TextSize { get; set; }
+    public TextPartGenerateSettings? TextPartSize { get; set; }
 }
 
 [DataContract]
-public class LinePartGenerateSettings
+public class NumberPartGenerateSettings
 {
     [DataMember]
     public long Min { get; set; }
 
     [DataMember]
     public long Max { get; set; }
+}
+
+[DataContract]
+public class TextPartGenerateSettings
+{
+    [DataMember]
+    public ushort Min { get; set; }
+
+    [DataMember]
+    public ushort Max { get; set; }
 }

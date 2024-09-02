@@ -11,13 +11,11 @@ var fileName = args.Length > 1 ? args[1] : config.File.DefaultName;
 Console.WriteLine($"Start generating");
 Console.WriteLine($"Config: {configFileName} | Seed: {config.RandomSeed} | File size: {config.File.MinSizeMb} Mb");
 
-if (File.Exists(fileName))
-{
-    File.Delete(fileName);
-}
+var rnd = new Random(config.RandomSeed);
+var service = new GenerateService(rnd, config.Line.Number, config.Line.TextPartSize);
+var lines=service.MakeRandomLines(config.File.MinSizeMb);
 
-var lines = new GenerateService().MakeLines(config);
-File.AppendAllLines(fileName, lines);
+File.WriteAllLines(fileName, lines);
 
 var execMs = totalWatch.ElapsedMilliseconds;
 Console.WriteLine($"Done | Time: {execMs / 1000.0:N2} sec.");
