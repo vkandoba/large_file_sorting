@@ -1,17 +1,17 @@
-﻿// See https://aka.ms/new-console-template for more information
-
-using System.Runtime.Serialization;
+﻿using System.Runtime.Serialization;
 using System.Runtime.Serialization.Json;
-using System.Text;
 
 var totalWatch = System.Diagnostics.Stopwatch.StartNew();
 
-var config_file_name = "default_config.json"; // TODO: get from CLI argument
-var config = GenerateSettings.ReadFromFile(config_file_name);
-Console.WriteLine($"Start generating");
-Console.WriteLine($"Config: {config_file_name} | Seed: {config.RandomSeed} | File size: {config.File.MinSizeMb} Mb");
+var defaultConfigFileName = "default_config.json";
+var configFileName = args.Length > 0 ? args[0] : defaultConfigFileName;
+var config = GenerateSettings.ReadFromFile(configFileName);
 
-var fileName = config.File.Path;
+var fileName = args.Length > 1 ? args[1] : config.File.Path;
+
+Console.WriteLine($"Start generating");
+Console.WriteLine($"Config: {configFileName} | Seed: {config.RandomSeed} | File size: {config.File.MinSizeMb} Mb");
+
 var rnd = new Random(config.RandomSeed);
 if (File.Exists(fileName))
 {

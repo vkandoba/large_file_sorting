@@ -1,21 +1,11 @@
 ﻿// See https://aka.ms/new-console-template for more information
-using System.IO;
-using System.IO.Compression;
 using LargeFileSortingApp.SortingService;
 
 // TODO: handle exceptions
 // TODO: profile memory for 1 GB
 
-var inputFile = "in.txt";
-var outputFile = "out.txt";
-if (args.Length > 0)
-{
-    inputFile = args[0];
-    if (args.Length > 1)
-    {
-        outputFile = args[1];
-    }
-}
+var inputFile = args.Length > 0 ? args[0] : "in.txt";
+var outputFile = args.Length > 1 ? args[1] : "out.txt";
 
 #if DEBUG
     Console.WriteLine($"Input: {inputFile}\nOutput: {outputFile}"); 
