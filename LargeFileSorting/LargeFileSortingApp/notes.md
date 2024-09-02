@@ -1,10 +1,5 @@
 ### Questions:
 
-1. What is encoding? UTF-8 is ok?
-2. Are there limits for number and string in each line?
-3. Are there some reference for corner cases? for examples, file with a few too long lines or a lot of identically line?
-
-
 ### Baseline
 
 1. Split to chunks and in-memory sorting 
@@ -14,7 +9,7 @@
 
 ### Perfomance estimate 
 
-env: linux, 8 GB RAM, 480 GB SSD
+env: 4 GB RAM, 480 GB SSD
 
 
 ### Ideas
@@ -25,7 +20,5 @@ env: linux, 8 GB RAM, 480 GB SSD
 
 ### TODO 
 
-1. Function tests
-2. Docker with perfomance test env
-3. Add random state for generate files 
-4. Perfomance test files 
+1. Docker with perfomance test env
+3. Perfomance test files 
