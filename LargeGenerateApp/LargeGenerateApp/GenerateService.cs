@@ -26,5 +26,4 @@ public class GenerateService
             yield return $"{numberStr}.{text}";
         }
     }
-   
 }
