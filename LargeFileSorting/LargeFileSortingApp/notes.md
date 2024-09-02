@@ -14,11 +14,16 @@ env: 4 GB RAM, 480 GB SSD
 
 ### Ideas
 
-1. Fixed-size prefix in memory for all characters
-2. Comparing numbers by string length and maybe as hex representation
-
+1. Set buffer size 64 Kb
+2. Count size by reader position
+3. Parallel in-memory sorting for chunks
+4. Set init primary query
+5. Settings and
+6. Factory
 
 ### TODO 
 
-1. Docker with perfomance test env
-3. Perfomance test files 
+1. Add duplicates_rate
+2. Create make file 
+3. Make configs for perfomance testing
+4. Add docker env
