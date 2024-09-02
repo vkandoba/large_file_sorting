@@ -2,6 +2,7 @@
 
 using System.Text;
 using LargeFileSortingApp;
+using LargeFileSortingApp.FileIO;
 using LargeFileSortingApp.SortingService;
 
 // TODO: handle exceptions
@@ -21,13 +22,14 @@ var service = new ChunkSortingService();
 var textLines = File.ReadLines(inputFile);
 var lines = textLines.Select(LineItem.Parse);
 var sortedLines = service.Sort(lines);
-var result = sortedLines.Select(l => l.Line);
 
 if (File.Exists(outputFile))
 {
     File.Delete(outputFile);
 }
-File.AppendAllLines(outputFile, result);
+
+var writer = new LineItemWriter();
+writer.Write(outputFile, sortedLines);
 var total_ms = totalWatch.ElapsedMilliseconds;
 
 const int ReadBufferSize =  64 * 1024; // ~64 KB

@@ -1,4 +1,5 @@
 using System.Text;
+using LargeFileSortingApp.FileIO;
 using LargeFileSortingApp.Utils;
 using Microsoft.VisualBasic.CompilerServices;
 
@@ -13,7 +14,6 @@ public class LinePairFromDump
 public class ChunkSortingService : ISortingService
 {
     private const int ChunkSize =  128 * 1024 * 1024; // ~128 MB
-    private const int WriteBufferSize =  64 * 1024; // ~64 KB
 
     private InMemorySortingService inMemotySorting = new InMemorySortingService();
 
@@ -28,17 +28,13 @@ public class ChunkSortingService : ISortingService
             Directory.CreateDirectory(TempFolder);
         
         Console.WriteLine(Path.GetFullPath(TempFolder));
+        var itemWriter = new LineItemWriter();
         foreach (var chunk in chunks)
         {
             var uniqueName = Guid.NewGuid().ToString(); // TODO: handle collision
             var sortedChunk = inMemotySorting.Sort(chunk);
             var dumpFile = Path.Combine(TempFolder, uniqueName);
-            using var dumpStream = File.OpenWrite(dumpFile);
-            using var dumpWriter = new StreamWriter(dumpStream, Encoding.UTF8, WriteBufferSize);
-            foreach (var item in sortedChunk)
-            {
-                dumpWriter.WriteLine(item.Line);
-            }
+            itemWriter.Write(dumpFile, sortedChunk);
 
             files.Add(dumpFile);
         }
