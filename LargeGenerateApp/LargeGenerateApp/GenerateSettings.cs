@@ -10,10 +10,13 @@ public class GenerateSettings
     public int RandomSeed { get; set; }
     
     [DataMember]
-    public FileGenerateSettings File { get; set; }
+    public double MinSizeMb { get; set; } // reason of double - generating a small file, like 0.2 MB
  
     [DataMember]
-    public LineGenerateSettings Line { get; set; }
+    public LineDuplicatedSettings Duplicated { get; set; }
+
+    [DataMember]
+    public LineGeneratedSettings Generated { get; set; }
 
     public static GenerateSettings ReadFromFile(string configFile)
     {
@@ -29,21 +32,20 @@ public class GenerateSettings
     }
 }
 
-[DataContract]
-public class FileGenerateSettings
+public class LineDuplicatedSettings
 {
     [DataMember]
-    public string DefaultName { get; set; }
-
+    public double Rate { get; set; } // should be from 0 to 1
+    
     [DataMember]
-    public double MinSizeMb { get; set; } // May be small, like 0.2 MB
+    public string Line { get; set; }
 }
 
 [DataContract]
-public class LineGenerateSettings
+public class LineGeneratedSettings
 {
     [DataMember]
-    public NumberPartGenerateSettings? Number { get; set; }
+    public NumberPartGenerateSettings? NumberPart { get; set; }
 
     [DataMember]
     public TextPartGenerateSettings? TextPartSize { get; set; }

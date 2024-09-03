@@ -5,11 +5,13 @@ namespace LargeGenerateApp;
 public class GenerateService
 {
     private readonly Random _rnd;
-
+    
     private readonly NumberPartGenerateSettings _numberLimits;
     
     private readonly TextPartGenerateSettings _textLenLimits;
     
+    private readonly LineDuplicatedSettings _duplicatedSettings;
+
     private const int MbScale = 1024 * 1024;
 
     private const string _english = "abcdefghijklmnopqrstuvwxyz";
@@ -17,11 +19,13 @@ public class GenerateService
     private const string _serbian = "абвгдђежзијклљмнњопрстћуфхцчџ";
     
     public GenerateService(
-        Random random, 
+        Random random,
         NumberPartGenerateSettings? numberLimits, 
-        TextPartGenerateSettings? textLenLimits)
+        TextPartGenerateSettings? textLenLimits,
+        LineDuplicatedSettings? duplicatedSettings)
     {
         _rnd = random;
+        _duplicatedSettings = duplicatedSettings ?? new LineDuplicatedSettings{Rate = 0, Line = ""};
         _numberLimits = numberLimits ?? new NumberPartGenerateSettings{Min = long.MinValue, Max = long.MaxValue};
         _textLenLimits = textLenLimits ?? new TextPartGenerateSettings{Min = 0, Max = 1000};
     }
@@ -34,17 +38,25 @@ public class GenerateService
         var symbols = $"{_english}{_serbian}";
         while (actualSizeInBytes < sizeInBytes)
         {
-            var number = (ulong) _rnd.NextInt64(_numberLimits.Min, _numberLimits.Max);
+            var isDuplicated = _rnd.NextDouble() < _duplicatedSettings.Rate;
+            if (!isDuplicated)
+            {
+                var number = (ulong) _rnd.NextInt64(_numberLimits.Min, _numberLimits.Max);
         
-            var textLen = _rnd.Next(_textLenLimits.Min, _textLenLimits.Max);
-            var indexes = new byte[textLen];
-            _rnd.NextBytes(indexes);
+                var textLen = _rnd.Next(_textLenLimits.Min, _textLenLimits.Max);
+                var indexes = new byte[textLen];
+                _rnd.NextBytes(indexes);
 
-            var text = new string(indexes.Select(n => symbols[(int)(n % symbols.Length)]).ToArray());
-            var textBytes = Encoding.UTF8.GetByteCount(text);
+                var text = new string(indexes.Select(n => symbols[(int)(n % symbols.Length)]).ToArray());
+                var textBytes = Encoding.UTF8.GetByteCount(text);
             
-            actualSizeInBytes += (ulong) (number.ToString().Length + textBytes);
-            yield return $"{number}.{text}";
+                actualSizeInBytes += (ulong) (number.ToString().Length + textBytes);
+                yield return $"{number}.{text}";
+            }
+            else
+            {
+                yield return _duplicatedSettings.Line;
+            }
         }
     }
 }

@@ -1,13 +1,14 @@
 {
   "RandomSeed": 42,
-  "File":
-  {
-    "DefaultName": "/Users/vkandoba/data/test_256_mb_30_250",
-    "MinSizeMb": 256
+  "MinSizeMb": 0.05,
+  "Duplicated":
+  { 
+    "Rate": 0.3,
+    "Line": "648.мћhњнвxrтaafaдzmуџалcmrpаgџrкdхaцфbцwжvољvwepтuљsrnhdђ"
   },
-  "Line": 
+  "Generated": 
   {
-    "Number": {"Min":  1000000, "Max":  922337203685477580},
+    "NumberPart": {"Min":  1000000, "Max":  922337203685477580},
     "TextPartSize": {"Min":  30, "Max":  250}
   }
 }
