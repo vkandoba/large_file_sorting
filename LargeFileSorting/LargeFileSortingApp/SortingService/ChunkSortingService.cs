@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using System.Text;
 using LargeFileSortingApp.FileIO;
 using LargeFileSortingApp.Utils;
@@ -20,29 +21,15 @@ public class ChunkSortingService : ISortingService
     public IEnumerable<LineItem> Sort(IEnumerable<LineItem> lines)
     {
         var chunks = lines.ChunksBySize(ChunkSize);
-        var files = new List<string>();
-
-        if (!Directory.Exists(TempFolder))
-            Directory.CreateDirectory(TempFolder);
         
-        var itemWriter = new LineItemWriter();
-        foreach (var chunk in chunks)
-        {
-            var uniqueName = Guid.NewGuid().ToString(); // TODO: handle collision
-            var sortedChunk = chunk.SortInMemory();
-            var dumpFile = Path.Combine(TempFolder, uniqueName);
-            itemWriter.Write(dumpFile, sortedChunk);
-
-            files.Add(dumpFile);
-        }
+        var chunkFiles = SortAndDumpToFiles(chunks);
         
-        var result = MergeFiles(files.ToArray());
-        foreach (var item in result)
+        foreach (var item in MergeFiles(chunkFiles))
         {
             yield return item;
         }
         
-        foreach (var file in files)
+        foreach (var file in chunkFiles)
         {
             File.Delete(file);
         }
@@ -52,6 +39,52 @@ public class ChunkSortingService : ISortingService
         {
             Directory.Delete(TempFolder);
         }
+    }
+
+    private string[] SortAndDumpToFiles(IEnumerable<LineItem[]> chunks)
+    {
+        var producerCount = 6;
+        var sortedChunkBlockedQueue = new BlockingCollection<LineItem[]>(producerCount);
+        var partsToSort = chunks.Chunk(producerCount);
+        
+        var sortWorkerTasks = new List<Task>();
+        foreach (var part in partsToSort)
+        {
+            var sortWorkerTask = Task.Factory.StartNew(() =>
+            {
+                foreach (var chunk in part)
+                {
+                    var sortedChunk = chunk.SortInMemory();
+                    sortedChunkBlockedQueue.Add(sortedChunk);
+                }
+            });
+            sortWorkerTasks.Add(sortWorkerTask);
+        }
+
+        var dumpToFileWorkerTask = Task.Factory.StartNew<string[]>(() =>
+        {
+            var dumpFiles = new List<string>();
+            
+            if (!Directory.Exists(TempFolder))
+                Directory.CreateDirectory(TempFolder);
+            
+            var itemWriter = new LineItemWriter();
+            do
+            {
+                var sortedChunk = sortedChunkBlockedQueue.Take();
+                var uniqueName = Guid.NewGuid().ToString(); // TODO: handle collision
+                var dumpFile = Path.Combine(TempFolder, uniqueName);
+                itemWriter.Write(dumpFile, sortedChunk);
+                dumpFiles.Add(dumpFile);
+            } while (!sortedChunkBlockedQueue.IsAddingCompleted || sortedChunkBlockedQueue.Count > 0);
+
+            return dumpFiles.ToArray();
+        });
+        
+        Task.WaitAll(sortWorkerTasks.ToArray());
+        sortedChunkBlockedQueue.CompleteAdding();
+
+        return dumpToFileWorkerTask.Result;
     }
     
     private IEnumerable<LineItem> MergeFiles(string[] files)

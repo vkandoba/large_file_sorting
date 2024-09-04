@@ -15,10 +15,9 @@ env: 4 GB RAM, 480 GB SSD
 
 - Factory 
 - Settings and choice 
-- Set init primary query
+- Set init primary query -- rejected
 - Count size by reader position
 - Compress duplicates
-- Parallel in-memory sorting for chunks
 
 ### TODO 
 
