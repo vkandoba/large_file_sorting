@@ -1,3 +1,4 @@
+using System.Runtime.ExceptionServices;
 using System.Text;
 
 namespace LargeGenerateApp;
@@ -14,9 +15,11 @@ public class GenerateService
 
     private const int MbScale = 1024 * 1024;
 
-    private const string _english = "abcdefghijklmnopqrstuvwxyz";
+    private const string English = "abcdefghijklmnopqrstuvwxyz";
 
-    private const string _serbian = "абвгдђежзијклљмнњопрстћуфхцчџ";
+    private const string Serbian = "абвгдђежзијклљмнњопрстћуфхцчџ";
+
+    private const string Symbols = $"{English}{Serbian}";
     
     public GenerateService(
         Random random,
@@ -34,29 +37,34 @@ public class GenerateService
     {
         ulong sizeInBytes = (ulong)Math.Round(totalSizeMb * MbScale);
         ulong actualSizeInBytes = 0;
-
-        var symbols = $"{_english}{_serbian}";
+        ulong duplicatedLineSize = (ulong) Encoding.UTF8.GetByteCount(_duplicatedSettings.Line);
+        
         while (actualSizeInBytes < sizeInBytes)
         {
             var isDuplicated = _rnd.NextDouble() < _duplicatedSettings.Rate;
             if (!isDuplicated)
             {
-                var number = (ulong) _rnd.NextInt64(_numberLimits.Min, _numberLimits.Max);
-        
+                var number = _rnd.NextInt64(_numberLimits.Min, _numberLimits.Max);
                 var textLen = _rnd.Next(_textLenLimits.Min, _textLenLimits.Max);
-                var indexes = new byte[textLen];
-                _rnd.NextBytes(indexes);
-
-                var text = new string(indexes.Select(n => symbols[(int)(n % symbols.Length)]).ToArray());
-                var textBytes = Encoding.UTF8.GetByteCount(text);
-            
-                actualSizeInBytes += (ulong) (number.ToString().Length + textBytes);
-                yield return $"{number}.{text}";
+                var line = GenNextLine(number, textLen);
+                
+                actualSizeInBytes += (ulong) Encoding.UTF8.GetByteCount(line) + 1; // 1 for '\n'
+                yield return line;
             }
             else
             {
+                actualSizeInBytes += duplicatedLineSize + 1;
                 yield return _duplicatedSettings.Line;
             }
         }
+    }
+
+    private string GenNextLine(long number, int textLen)
+    {
+        var indexes = new byte[textLen];
+        _rnd.NextBytes(indexes);
+        var text = new string(indexes.Select(n => Symbols[(int)(n % Symbols.Length)]).ToArray());
+        
+        return $"{number}.{text}";
     }
 }

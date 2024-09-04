@@ -30,10 +30,10 @@ if (File.Exists(outputFile))
 
 var writer = new LineItemWriter();
 writer.Write(outputFile, sortedLines);
-var total_ms = totalWatch.ElapsedMilliseconds;
+var totalMs = totalWatch.ElapsedMilliseconds;
 
 #if DEBUG
-    Console.WriteLine($"Done. Exec time: {total_ms / 1000.0:N2} sec.\n");
+    Console.WriteLine($"Done. Exec time: {totalMs / 1000.0:N2} sec.\n");
 #endif
 
 var firstResult = File.ReadLines(outputFile).Take(10);
@@ -43,5 +43,4 @@ var firstResult = File.ReadLines(outputFile).Take(10);
     {
         Console.WriteLine(line);
     }
-    Console.WriteLine();
 #endif

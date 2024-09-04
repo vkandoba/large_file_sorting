@@ -13,7 +13,7 @@ public static class EnumerableExtension
         long currentSize = 0;
         foreach (var item in lines)
         {
-            var size = Encoding.UTF8.GetByteCount(item.Line); // TODO: not efficient way to determinate size of string. May be replaced to mean size of file
+            var size = Encoding.UTF8.GetByteCount(item.Line) + 1; // TODO: not efficient way to determinate size of string. May be replaced to mean size of file
             currentSize += size;
             current.Add(item);
 
