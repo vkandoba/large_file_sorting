@@ -21,4 +21,5 @@ env: 4 GB RAM, 480 GB SSD
 
 ### TODO 
 
-1. Add docker env
+1. Add usage help string
+2. Add docker env
