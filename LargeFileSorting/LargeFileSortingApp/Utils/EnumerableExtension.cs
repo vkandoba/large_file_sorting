@@ -24,5 +24,8 @@ public static class EnumerableExtension
                 currentSize = 0;
             }
         }
+        
+        if (current.Any())
+            yield return current.ToArray();
     }
 }
