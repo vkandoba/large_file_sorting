@@ -4,18 +4,6 @@ using LargeFileSortingApp.Utils;
 
 namespace LargeFileSortingApp.LineSortingService;
 
-public class LineFromDump
-{
-    public string File { get; set; }
-    public LineItem LineItem { get; set; }
-    
-    public LineFromDump(string file, LineItem lineItem)
-    {
-        File = file;
-        LineItem = lineItem;
-    }
-}
-
 public class FileChunkLineSortingService : ILineSortingService, IDisposable
 {
     private const string TempFolderName = "tmp_dump"; // TODO: add guid to suffix
@@ -99,35 +87,33 @@ public class FileChunkLineSortingService : ILineSortingService, IDisposable
         return dumpToFileWorkerTask.Result;
     }
     
-    private IEnumerable<LineItem> MergeFiles(string[] files)
+    private IEnumerable<LineItem> MergeFiles(string[] filenames)
     {
         var fileToIterators = new Dictionary<string, IEnumerator<LineItem>>();
         try
         {
-            var heap = new PriorityQueue<LineFromDump, LineItem>();
-            foreach (var file in files)
+            var heap = new PriorityQueue<string, LineItem>();
+            foreach (var filename in filenames)
             {
-                string.Intern(file);
+                string.Intern(filename);
                 var reader = new FileLineReader();
-                var fileEnumerator = reader.ReadLines(file).GetEnumerator();
+                var fileEnumerator = reader.ReadLines(filename).GetEnumerator();
                 if (fileEnumerator.MoveNext())
                 {   
                     var current = fileEnumerator.Current;
-                    var item = new LineFromDump(file, current);
-                    heap.Enqueue(item, current);
-                    fileToIterators[file] = fileEnumerator;
+                    heap.Enqueue(filename, current);
+                    fileToIterators[filename] = fileEnumerator;
                 }
             }
 
-            while (heap.TryDequeue(out var item, out var pair))
+            while (heap.TryDequeue(out var sourceFile, out var item))
             {
-                yield return pair;
-                var iterator = fileToIterators[item.File];
+                yield return item;
+                var iterator = fileToIterators[sourceFile];
                 if (iterator.MoveNext())
                 {
                     var nextCurrent = iterator.Current;
-                    var nextItem = new LineFromDump(item.File, nextCurrent);
-                    heap.Enqueue(nextItem, nextCurrent);
+                    heap.Enqueue(sourceFile, nextCurrent);
                 }
             }
         }

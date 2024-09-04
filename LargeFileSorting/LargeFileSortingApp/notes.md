@@ -13,10 +13,7 @@ env: 4 GB RAM, 480 GB SSD
 
 ### Ideas
 
-- Factory 
-- Settings and choice 
 - Set init primary query -- rejected
-- Count size by reader position
 - Compress duplicates
 
 ### TODO 
