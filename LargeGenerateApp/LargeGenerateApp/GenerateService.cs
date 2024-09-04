@@ -17,9 +17,9 @@ public class GenerateService
 
     private const string English = "abcdefghijklmnopqrstuvwxyz";
 
-    private const string Serbian = "абвгдђежзијклљмнњопрстћуфхцчџ";
-
-    private const string Symbols = $"{English}{Serbian}";
+    private const string Cyrillic = "бвгдђжзилљнњптћфхцчџ";
+    
+    private const string Symbols = $"{English}{Cyrillic}";
     
     public GenerateService(
         Random random,
