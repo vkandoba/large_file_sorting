@@ -27,7 +27,6 @@ public class ChunkSortingService : ISortingService
         if (!Directory.Exists(TempFolder))
             Directory.CreateDirectory(TempFolder);
         
-        Console.WriteLine(Path.GetFullPath(TempFolder));
         var itemWriter = new LineItemWriter();
         foreach (var chunk in chunks)
         {

@@ -21,8 +21,4 @@ env: 4 GB RAM, 480 GB SSD
 
 ### TODO 
 
-1. Add duplicates_rate
-2. Create make file 
-3. Make configs for perfomance testing
-4. Add size of \n\r to gen and dump. Add size duplicates to gen
-4. Add docker en
+1. Add docker env
