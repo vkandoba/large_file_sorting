@@ -11,7 +11,8 @@ var outputFile = args.Length > 1 ? args[1] : "out.txt";
     var totalWatch = System.Diagnostics.Stopwatch.StartNew();
 #endif
 
-var service = new ChunkSortingService();
+using var chunkReader = new FileChunkLineReader(inputFile, 64 * 1024, 128 * 1024 * 1024);
+var service = new ChunkSortingService(chunkReader);
 
 var reader = new FileLineItemReader();
 var lines = reader.ReadLines(inputFile);
