@@ -1,8 +1,4 @@
-﻿// See https://aka.ms/new-console-template for more information
-
-using System.Text;
-using LargeFileSortingApp;
-using LargeFileSortingApp.FileIO;
+﻿using LargeFileSortingApp.FileIO;
 using LargeFileSortingApp.SortingService;
 
 // TODO: handle exceptions
