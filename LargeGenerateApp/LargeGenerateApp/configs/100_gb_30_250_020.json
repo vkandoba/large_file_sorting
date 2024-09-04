@@ -1,0 +1,14 @@
+{
+  "RandomSeed": 42,
+  "MinSizeMb": 102400,
+  "Duplicated":
+  {
+    "Rate": 0.2,
+    "Line": "648.мћhњнвxrтaafaдzmуџалcmrpаgџrкdхaцфbцwжvољvwepтuљsrnhdђ"
+  },
+  "Generated":
+  {
+    "NumberPart": {"Min":  1000000, "Max":  922337203685477580},
+    "TextPartSize": {"Min":  30, "Max":  250}
+  }
+}
