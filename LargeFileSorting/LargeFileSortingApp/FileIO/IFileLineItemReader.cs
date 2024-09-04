@@ -1,6 +1,6 @@
 namespace LargeFileSortingApp.FileIO;
 
-public interface ILineItemReader
+public interface IFileLineItemReader
 {
     IEnumerable<LineItem> ReadLines(string file);
 }

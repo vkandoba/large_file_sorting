@@ -13,7 +13,7 @@ var outputFile = args.Length > 1 ? args[1] : "out.txt";
 
 var service = new ChunkSortingService();
 
-var reader = new LineItemReader();
+var reader = new FileLineItemReader();
 var lines = reader.ReadLines(inputFile);
 var sortedLines = service.Sort(lines);
 

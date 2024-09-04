@@ -96,10 +96,10 @@ public class ChunkSortingService : ISortingService
             foreach (var file in files)
             {
                 string.Intern(file);
-                var reader = new LineItemReader();
+                var reader = new FileLineItemReader();
                 var fileEnumerator = reader.ReadLines(file).GetEnumerator();
                 if (fileEnumerator.MoveNext())
-                {
+                {   
                     var current = fileEnumerator.Current;
                     var item = new LinePairFromDump { file = file, LineItem = current };
                     heap.Enqueue(item, current);
