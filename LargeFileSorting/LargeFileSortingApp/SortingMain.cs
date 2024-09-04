@@ -2,7 +2,6 @@
 using LargeFileSortingApp.SortingService;
 
 // TODO: handle exceptions
-// TODO: profile memory for 1 GB
 
 var inputFile = args.Length > 0 ? args[0] : "in.txt";
 var outputFile = args.Length > 1 ? args[1] : "out.txt";
