@@ -1,15 +1,19 @@
 using System.Collections.Concurrent;
-using System.Text;
 using LargeFileSortingApp.FileIO;
 using LargeFileSortingApp.Utils;
-using Microsoft.VisualBasic.CompilerServices;
 
 namespace LargeFileSortingApp.SortingService;
 
 public class LinePairFromDump
 {
-    public string file { get; set; }
+    public string File { get; set; }
     public LineItem LineItem { get; set; }
+    
+    public LinePairFromDump(string file, LineItem lineItem)
+    {
+        File = file;
+        LineItem = lineItem;
+    }
 }
 
 public class ChunkSortingService : ISortingService
@@ -101,7 +105,7 @@ public class ChunkSortingService : ISortingService
                 if (fileEnumerator.MoveNext())
                 {   
                     var current = fileEnumerator.Current;
-                    var item = new LinePairFromDump { file = file, LineItem = current };
+                    var item = new LinePairFromDump(file, current);
                     heap.Enqueue(item, current);
                     fileToIterators[file] = fileEnumerator;
                 }
@@ -110,11 +114,11 @@ public class ChunkSortingService : ISortingService
             while (heap.TryDequeue(out var item, out var pair))
             {
                 yield return pair;
-                var iterator = fileToIterators[item.file];
+                var iterator = fileToIterators[item.File];
                 if (iterator.MoveNext())
                 {
                     var nextCurrent = iterator.Current;
-                    var nextItem = new LinePairFromDump { file = item.file, LineItem = nextCurrent };
+                    var nextItem = new LinePairFromDump(item.File, nextCurrent);
                     heap.Enqueue(nextItem, nextCurrent);
                 }
             }
