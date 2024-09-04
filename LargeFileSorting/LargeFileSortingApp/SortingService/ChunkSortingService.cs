@@ -63,22 +63,22 @@ public class ChunkSortingService : ISortingService
 
         var dumpToFileWorkerTask = Task.Factory.StartNew<string[]>(() =>
         {
-            var dumpFiles = new List<string>();
+            var files = new List<string>();
             
             if (!Directory.Exists(TempFolder))
                 Directory.CreateDirectory(TempFolder);
             
-            var itemWriter = new LineItemWriter();
+            var dumpWriter = new FileLineItemWriter();
             do
             {
                 var sortedChunk = sortedChunkBlockedQueue.Take();
                 var uniqueName = Guid.NewGuid().ToString(); // TODO: handle collision
                 var dumpFile = Path.Combine(TempFolder, uniqueName);
-                itemWriter.Write(dumpFile, sortedChunk);
-                dumpFiles.Add(dumpFile);
+                dumpWriter.WriteLines(dumpFile, sortedChunk);
+                files.Add(dumpFile);
             } while (!sortedChunkBlockedQueue.IsAddingCompleted || sortedChunkBlockedQueue.Count > 0);
 
-            return dumpFiles.ToArray();
+            return files.ToArray();
         });
         
         Task.WaitAll(sortWorkerTasks.ToArray());

@@ -22,8 +22,8 @@ if (File.Exists(outputFile))
     File.Delete(outputFile);
 }
 
-var writer = new LineItemWriter();
-writer.Write(outputFile, sortedLines);
+var writer = new FileLineItemWriter();
+writer.WriteLines(outputFile, sortedLines);
 
 #if DEBUG
     var totalMs = totalWatch.ElapsedMilliseconds;
