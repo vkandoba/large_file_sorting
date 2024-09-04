@@ -4,7 +4,7 @@ namespace LargeFileSortingApp.FileIO;
 
 public class FileLineItemReader : IFileLineItemReader
 {
-    const int BufferSize =  64 * 1024; // ~64 KB
+    const int BufferSize = 64 * 1024; // ~64 KB
 
     public IEnumerable<LineItem> ReadLines(string file)
     {

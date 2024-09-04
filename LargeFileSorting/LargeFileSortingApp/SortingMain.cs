@@ -12,11 +12,9 @@ var outputFile = args.Length > 1 ? args[1] : "out.txt";
 #endif
 
 using var chunkReader = new FileChunkLineReader(inputFile, 64 * 1024, 128 * 1024 * 1024);
-var service = new ChunkSortingService(chunkReader);
+var service = new FileChunkSortingService(chunkReader);
 
-var reader = new FileLineItemReader();
-var lines = reader.ReadLines(inputFile);
-var sortedLines = service.Sort(lines);
+var sortedLines = service.GetSortedLines();
 
 if (File.Exists(outputFile))
 {

@@ -4,27 +4,32 @@ using LargeFileSortingApp.Utils;
 
 namespace LargeFileSortingApp.SortingService;
 
-public class LinePairFromDump
+public class LineFromDump
 {
     public string File { get; set; }
     public LineItem LineItem { get; set; }
     
-    public LinePairFromDump(string file, LineItem lineItem)
+    public LineFromDump(string file, LineItem lineItem)
     {
         File = file;
         LineItem = lineItem;
     }
 }
 
-public class ChunkSortingService : ISortingService
+public class FileChunkSortingService : ISortingService
 {
-    private const int ChunkSize =  128 * 1024 * 1024; // ~128 MB
+    private readonly IFileChunkLineReader _chunkLineReader;
     
-    private const string TempFolder = "tmp_dump";
+    private const string TempFolderName = "tmp_dump"; // TODO: add guid to suffix
 
-    public IEnumerable<LineItem> Sort(IEnumerable<LineItem> lines)
+    public FileChunkSortingService(IFileChunkLineReader chunkLineReader)
     {
-        var chunks = lines.ChunksBySize(ChunkSize);
+        _chunkLineReader = chunkLineReader;
+    }
+
+    public IEnumerable<LineItem> GetSortedLines()
+    {
+        var chunks = _chunkLineReader.ReadChunks();
         
         var chunkFiles = SortAndDumpToFiles(chunks);
         
@@ -39,9 +44,9 @@ public class ChunkSortingService : ISortingService
         }
 
         //TODO: race condition on double run at the same time
-        if (!Directory.EnumerateFileSystemEntries(TempFolder).Any())
+        if (!Directory.EnumerateFileSystemEntries(TempFolderName).Any())
         {
-            Directory.Delete(TempFolder);
+            Directory.Delete(TempFolderName);
         }
     }
 
@@ -69,15 +74,15 @@ public class ChunkSortingService : ISortingService
         {
             var files = new List<string>();
             
-            if (!Directory.Exists(TempFolder))
-                Directory.CreateDirectory(TempFolder);
+            if (!Directory.Exists(TempFolderName))
+                Directory.CreateDirectory(TempFolderName);
             
             var dumpWriter = new FileLineItemWriter();
             do
             {
                 var sortedChunk = sortedChunkBlockedQueue.Take();
                 var uniqueName = Guid.NewGuid().ToString(); // TODO: handle collision
-                var dumpFile = Path.Combine(TempFolder, uniqueName);
+                var dumpFile = Path.Combine(TempFolderName, uniqueName);
                 dumpWriter.WriteLines(dumpFile, sortedChunk);
                 files.Add(dumpFile);
             } while (!sortedChunkBlockedQueue.IsAddingCompleted || sortedChunkBlockedQueue.Count > 0);
@@ -96,7 +101,7 @@ public class ChunkSortingService : ISortingService
         var fileToIterators = new Dictionary<string, IEnumerator<LineItem>>();
         try
         {
-            var heap = new PriorityQueue<LinePairFromDump, LineItem>();
+            var heap = new PriorityQueue<LineFromDump, LineItem>();
             foreach (var file in files)
             {
                 string.Intern(file);
@@ -105,7 +110,7 @@ public class ChunkSortingService : ISortingService
                 if (fileEnumerator.MoveNext())
                 {   
                     var current = fileEnumerator.Current;
-                    var item = new LinePairFromDump(file, current);
+                    var item = new LineFromDump(file, current);
                     heap.Enqueue(item, current);
                     fileToIterators[file] = fileEnumerator;
                 }
@@ -118,7 +123,7 @@ public class ChunkSortingService : ISortingService
                 if (iterator.MoveNext())
                 {
                     var nextCurrent = iterator.Current;
-                    var nextItem = new LinePairFromDump(item.File, nextCurrent);
+                    var nextItem = new LineFromDump(item.File, nextCurrent);
                     heap.Enqueue(nextItem, nextCurrent);
                 }
             }
