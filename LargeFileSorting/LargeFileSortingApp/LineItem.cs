@@ -1,14 +1,5 @@
 namespace LargeFileSortingApp;
 
-public class LineItemWithMeta
-{
-    public LineItem Item { get; set; }
-    
-    public string Source { get; set; }
-    
-    public ushort Size { get; set; }
-}
-
 public class LineItem : IComparable
 {
     public readonly string Line;
