@@ -1,5 +1,5 @@
 ﻿using LargeFileSortingApp.FileIO;
-using LargeFileSortingApp.SortingService;
+using LargeFileSortingApp.LineSortingService;
 
 // TODO: handle exceptions
 
@@ -11,18 +11,20 @@ var outputFile = args.Length > 1 ? args[1] : "out.txt";
     var totalWatch = System.Diagnostics.Stopwatch.StartNew();
 #endif
 
-using var chunkReader = new FileChunkLineReader(inputFile, 64 * 1024, 128 * 1024 * 1024);
-var service = new FileChunkSortingService(chunkReader);
-
-var sortedLines = service.GetSortedLines();
-
-if (File.Exists(outputFile))
+var factory = new LineSortingServiceFactory();
+var service = factory.CreateService(inputFile);
+try
 {
-    File.Delete(outputFile);
+    var sortedLines = service.GetSortedLines();
+    
+    var writer = new FileLineWriter();
+    writer.WriteLines(outputFile, sortedLines);
 }
-
-var writer = new FileLineItemWriter();
-writer.WriteLines(outputFile, sortedLines);
+finally
+{
+    if (service is IDisposable disposableService)
+        disposableService.Dispose();
+}
 
 #if DEBUG
     var totalMs = totalWatch.ElapsedMilliseconds;

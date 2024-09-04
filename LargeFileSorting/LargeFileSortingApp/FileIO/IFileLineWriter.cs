@@ -1,6 +1,6 @@
 namespace LargeFileSortingApp.FileIO;
 
-public interface IFileLineItemWriter
+public interface IFileLineWriter
 {
     void WriteLines(string file, IEnumerable<LineItem> items);
 }

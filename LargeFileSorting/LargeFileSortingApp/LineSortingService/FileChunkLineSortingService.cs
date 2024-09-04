@@ -2,7 +2,7 @@ using System.Collections.Concurrent;
 using LargeFileSortingApp.FileIO;
 using LargeFileSortingApp.Utils;
 
-namespace LargeFileSortingApp.SortingService;
+namespace LargeFileSortingApp.LineSortingService;
 
 public class LineFromDump
 {
@@ -16,15 +16,18 @@ public class LineFromDump
     }
 }
 
-public class FileChunkSortingService : ISortingService
+public class FileChunkLineSortingService : ILineSortingService, IDisposable
 {
-    private readonly IFileChunkLineReader _chunkLineReader;
-    
     private const string TempFolderName = "tmp_dump"; // TODO: add guid to suffix
 
-    public FileChunkSortingService(IFileChunkLineReader chunkLineReader)
+    private readonly IFileChunkLineReader _chunkLineReader;
+
+    private readonly int _bufferSizeB;
+
+    public FileChunkLineSortingService(IFileChunkLineReader chunkLineReader, int fileOpBufferSizeB)
     {
         _chunkLineReader = chunkLineReader;
+        _bufferSizeB = fileOpBufferSizeB;
     }
 
     public IEnumerable<LineItem> GetSortedLines()
@@ -77,7 +80,7 @@ public class FileChunkSortingService : ISortingService
             if (!Directory.Exists(TempFolderName))
                 Directory.CreateDirectory(TempFolderName);
             
-            var dumpWriter = new FileLineItemWriter();
+            var dumpWriter = new FileLineWriter();
             do
             {
                 var sortedChunk = sortedChunkBlockedQueue.Take();
@@ -105,7 +108,7 @@ public class FileChunkSortingService : ISortingService
             foreach (var file in files)
             {
                 string.Intern(file);
-                var reader = new FileLineItemReader();
+                var reader = new FileLineReader();
                 var fileEnumerator = reader.ReadLines(file).GetEnumerator();
                 if (fileEnumerator.MoveNext())
                 {   
@@ -136,5 +139,10 @@ public class FileChunkSortingService : ISortingService
             }
         }
 
+    }
+
+    public void Dispose()
+    {
+        _chunkLineReader.Dispose();
     }
 }

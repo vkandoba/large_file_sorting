@@ -2,7 +2,7 @@ using System.Text;
 
 namespace LargeFileSortingApp.FileIO;
 
-public class FileLineItemWriter : IFileLineItemWriter
+public class FileLineWriter : IFileLineWriter
 {
     private const int BufferSize =  64 * 1024; // ~64 KB
 

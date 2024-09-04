@@ -1,6 +1,5 @@
 using System.Xml.Serialization;
 using LargeFileSortingApp;
-using LargeFileSortingApp.SortingService;
 using LargeFileSortingApp.Utils;
 using NUnit.Framework;
 using NUnit.Framework.Legacy;

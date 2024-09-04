@@ -2,7 +2,7 @@ using System.Text;
 
 namespace LargeFileSortingApp.FileIO;
 
-public class FileLineItemReader : IFileLineItemReader
+public class FileLineReader : IFileLineReader
 {
     const int BufferSize = 64 * 1024; // ~64 KB
 
