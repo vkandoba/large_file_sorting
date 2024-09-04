@@ -35,7 +35,8 @@ test-perfomance: build
 		test_file=./data/test; \
 		output_file=./data/result.out; \
 		dotnet ./bin/LargeGenerateApp.dll $$config_file $$test_file; \
-		time dotnet ./bin/LargeFileSortingApp.dll $$test_file $$output_file | grep real; \
+		time dotnet ./bin/LargeFileSortingApp.dll $$test_file $$output_file; \
+		rm -rf $$test_file; \
 		echo "----------------------------------------------------------------------------------\n"; \
 	done
 	rm -rf ./data/*
