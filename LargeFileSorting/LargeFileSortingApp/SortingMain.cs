@@ -13,9 +13,8 @@ var outputFile = args.Length > 1 ? args[1] : "out.txt";
 
 #if DEBUG
     Console.WriteLine($"Input: {inputFile}\nOutput: {outputFile}"); 
+    var totalWatch = System.Diagnostics.Stopwatch.StartNew();
 #endif
-
-var totalWatch = System.Diagnostics.Stopwatch.StartNew();
 
 var service = new ChunkSortingService();
 
@@ -30,17 +29,8 @@ if (File.Exists(outputFile))
 
 var writer = new LineItemWriter();
 writer.Write(outputFile, sortedLines);
-var totalMs = totalWatch.ElapsedMilliseconds;
 
 #if DEBUG
-    Console.WriteLine($"Done. Exec time: {totalMs / 1000.0:N2} sec.\n");
-#endif
-
-var firstResult = File.ReadLines(outputFile).Take(10);
-
-#if DEBUG
-    foreach (var line in firstResult)
-    {
-        Console.WriteLine(line);
-    }
+    var totalMs = totalWatch.ElapsedMilliseconds;
+    Console.WriteLine($"Done. Internal measured time: {totalMs / 1000.0:N2} sec.\n");
 #endif
