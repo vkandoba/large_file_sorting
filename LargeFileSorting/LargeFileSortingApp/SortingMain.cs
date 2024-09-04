@@ -38,7 +38,10 @@ var total_ms = totalWatch.ElapsedMilliseconds;
 
 var firstResult = File.ReadLines(outputFile).Take(10);
 
-foreach (var line in firstResult)
-{
-    Console.WriteLine(line);
-}
+#if DEBUG
+    foreach (var line in firstResult)
+    {
+        Console.WriteLine(line);
+    }
+    Console.WriteLine();
+#endif
