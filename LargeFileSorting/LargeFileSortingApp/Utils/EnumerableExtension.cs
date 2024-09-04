@@ -28,4 +28,11 @@ public static class EnumerableExtension
         if (current.Any())
             yield return current.ToArray();
     }
+
+    public static T[] SortInMemory<T>(this IEnumerable<T> items)
+    {
+        var itemsInMemory = items.ToArray();
+        Array.Sort(itemsInMemory);
+        return itemsInMemory;        
+    }
 }

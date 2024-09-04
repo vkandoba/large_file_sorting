@@ -14,9 +14,7 @@ public class LinePairFromDump
 public class ChunkSortingService : ISortingService
 {
     private const int ChunkSize =  128 * 1024 * 1024; // ~128 MB
-
-    private InMemorySortingService inMemotySorting = new InMemorySortingService();
-
+    
     private const string TempFolder = "tmp_dump";
 
     public IEnumerable<LineItem> Sort(IEnumerable<LineItem> lines)
@@ -31,7 +29,7 @@ public class ChunkSortingService : ISortingService
         foreach (var chunk in chunks)
         {
             var uniqueName = Guid.NewGuid().ToString(); // TODO: handle collision
-            var sortedChunk = inMemotySorting.Sort(chunk);
+            var sortedChunk = chunk.SortInMemory();
             var dumpFile = Path.Combine(TempFolder, uniqueName);
             itemWriter.Write(dumpFile, sortedChunk);
 

@@ -1,22 +1,15 @@
 using System.Xml.Serialization;
 using LargeFileSortingApp;
 using LargeFileSortingApp.SortingService;
+using LargeFileSortingApp.Utils;
 using NUnit.Framework;
 using NUnit.Framework.Legacy;
 
 namespace LargeFileSortingTests;
 
 [TestFixture]
-public class InMemorySortingServiceTests
+public class SortInMemoryTests
 {
-    private InMemorySortingService _service;
-
-    [SetUp]
-    public void InitService()
-    {
-        _service = new InMemorySortingService();
-    }
-
     [Test]
     public void TestSortLines()
     {
@@ -29,7 +22,7 @@ public class InMemorySortingServiceTests
             LineItem.Parse("2. Banana is yellow")
         };
 
-        var result = _service.Sort(lines).Select(x => x.Line).ToArray();
+        var result = lines.SortInMemory().Select(x => x.Line).ToArray();
         
         var expected = new[]
         {
@@ -57,7 +50,7 @@ public class InMemorySortingServiceTests
             LineItem.Parse("0."),
         };
 
-        var result = _service.Sort(lines).Select(x => x.Line).ToArray();
+        var result = lines.SortInMemory().Select(x => x.Line).ToArray();
         
         var expected = new[]
         {

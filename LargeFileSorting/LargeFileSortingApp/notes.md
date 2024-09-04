@@ -13,11 +13,12 @@ env: 4 GB RAM, 480 GB SSD
 
 ### Ideas
 
-6. Factory
-5. Settings and
-4. Set init primary query
-2. Count size by reader position
-3. Parallel in-memory sorting for chunks
+- Factory 
+- Settings and choice 
+- Set init primary query
+- Count size by reader position
+- Compress duplicates
+- Parallel in-memory sorting for chunks
 
 ### TODO 
 
