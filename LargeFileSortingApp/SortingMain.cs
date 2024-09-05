@@ -1,7 +1,17 @@
 ﻿using LargeFileSortingApp.FileIO;
 using LargeFileSortingApp.LineSortingService;
 
-var inputFile = args.Length > 0 ? args[0] : "in.txt";
+if (args.Length < 1)
+{
+    const string usage = @"
+    usage: LargeFileSortingApp input_file [output_file] 
+        input_file:  a file, that contains the lines to be sorted
+        output_file: a output file with sorted lines. By default, it's ""out.txt""";
+    Console.WriteLine(usage);
+    return;
+}
+
+var inputFile = args[0];
 var outputFile = args.Length > 1 ? args[1] : "out.txt";
 
 #if DEBUG
