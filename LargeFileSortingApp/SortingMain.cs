@@ -3,11 +3,7 @@ using LargeFileSortingApp.LineSortingService;
 
 if (args.Length < 1)
 {
-    const string usage = @"
-    usage: LargeFileSortingApp input_file [output_file] 
-        input_file:  a file, that contains the lines to be sorted
-        output_file: a output file with sorted lines. By default, it's ""out.txt""";
-    Console.WriteLine(usage);
+    PrintUsage();
     return;
 }
 
@@ -51,3 +47,13 @@ finally
     var totalMs = totalWatch.ElapsedMilliseconds;
     Console.WriteLine($"Done. Internal measured time: {totalMs / 1000.0:N2} sec.\n");
 #endif
+
+void PrintUsage()
+{
+    const string usage = @"
+    usage: LargeFileSortingApp input_file [output_file] 
+        input_file:  a file, that contains the lines to be sorted
+        output_file: a output file with sorted lines. By default, it's ""out.txt""";
+    
+    Console.WriteLine(usage);  
+}

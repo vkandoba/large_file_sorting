@@ -6,28 +6,7 @@
     
 if (args.Length < 2)
 {
-    const string usage = @"
-    usage: LargeGenerateApp config filename 
-        config:  file with generating settings 
-        filename: file to be generated;
-        
-        Config example: 
-        {
-          ""RandomSeed"": 42,
-          ""MinSizeMb"": 0.05,
-          ""Duplicated"":
-          { 
-            ""Rate"": 0.3,
-            ""Line"": ""648.мћhњнвxrтaafaдzmуџалcmrpаgџrкdхaцфbцwжvољvwepтuљsrnhdђ""
-          },
-          ""Generated"": 
-          {
-            ""NumberPart"": {""Min"":  1000000, ""Max"":  922337203685477580},
-            ""TextPartSize"": {""Min"":  30, ""Max"":  250}
-          }
-        }";
-    
-    Console.WriteLine(usage);
+    PrintUsage();
     return;
 }
 
@@ -69,3 +48,28 @@ catch (Exception ex)
     
 Console.WriteLine(fileName);
 
+void PrintUsage()
+{
+    const string usage = @"
+    usage: LargeGenerateApp config filename 
+        config:   a json file with generating settings 
+        filename: the file to be generated
+        
+        Config example: 
+        {
+          ""RandomSeed"": 42,
+          ""MinSizeMb"": 0.05,
+          ""Duplicated"":
+          { 
+            ""Rate"": 0.3,
+            ""Line"": ""648.мћhњнвxrтaafaдzmуџалcmrpаgџrкdхaцфbцwжvољvwepтuљsrnhdђ""
+          },
+          ""Generated"": 
+          {
+            ""NumberPart"": {""Min"":  1000000, ""Max"":  922337203685477580},
+            ""TextPartSize"": {""Min"":  30, ""Max"":  250}
+          }
+        }";
+    
+    Console.WriteLine(usage);
+}
