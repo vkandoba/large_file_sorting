@@ -9,13 +9,10 @@ public class FileChunkLineSortingService : ILineSortingService, IDisposable
     private const string TempFolderName = "tmp_dump"; // TODO: add guid to suffix
 
     private readonly IFileChunkLineReader _chunkLineReader;
-
-    private readonly int _bufferSizeB;
-
-    public FileChunkLineSortingService(IFileChunkLineReader chunkLineReader, int fileOpBufferSizeB)
+    
+    public FileChunkLineSortingService(IFileChunkLineReader chunkLineReader)
     {
         _chunkLineReader = chunkLineReader;
-        _bufferSizeB = fileOpBufferSizeB;
     }
 
     public IEnumerable<LineItem> GetSortedLines()
@@ -68,13 +65,12 @@ public class FileChunkLineSortingService : ILineSortingService, IDisposable
             if (!Directory.Exists(TempFolderName))
                 Directory.CreateDirectory(TempFolderName);
             
-            var dumpWriter = new FileLineWriter();
             do
             {
                 var sortedChunk = sortedChunkBlockedQueue.Take();
                 var uniqueName = Guid.NewGuid().ToString(); // TODO: handle collision
                 var dumpFile = Path.Combine(TempFolderName, uniqueName);
-                dumpWriter.WriteLines(dumpFile, sortedChunk);
+                FileHelpers.WriteLineItems(dumpFile, sortedChunk);
                 files.Add(dumpFile);
             } while (!sortedChunkBlockedQueue.IsAddingCompleted || sortedChunkBlockedQueue.Count > 0);
 
@@ -96,12 +92,10 @@ public class FileChunkLineSortingService : ILineSortingService, IDisposable
             foreach (var filename in filenames)
             {
                 string.Intern(filename);
-                var reader = new FileLineReader();
-                var fileEnumerator = reader.ReadLines(filename).GetEnumerator();
+                var fileEnumerator = FileHelpers.ReadLineItems(filename).GetEnumerator();
                 if (fileEnumerator.MoveNext())
                 {   
-                    var current = fileEnumerator.Current;
-                    heap.Enqueue(filename, current);
+                    heap.Enqueue(filename, fileEnumerator.Current);
                     fileToIterators[filename] = fileEnumerator;
                 }
             }
@@ -109,20 +103,16 @@ public class FileChunkLineSortingService : ILineSortingService, IDisposable
             while (heap.TryDequeue(out var sourceFile, out var item))
             {
                 yield return item;
+
                 var iterator = fileToIterators[sourceFile];
                 if (iterator.MoveNext())
-                {
-                    var nextCurrent = iterator.Current;
-                    heap.Enqueue(sourceFile, nextCurrent);
-                }
+                    heap.Enqueue(sourceFile, iterator.Current);
             }
         }
         finally
         {
             foreach (var fileIterators in fileToIterators.Values)
-            {
                 fileIterators.Dispose();
-            }
         }
 
     }

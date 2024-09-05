@@ -23,13 +23,12 @@ public class LineSortingServiceFactory : ILineSortingServiceFactory
         var fileSizeB = new FileInfo(filename).Length;
         if (fileSizeB <= InMemorySortingMaxFileSizeB)
         {
-            var reader = new FileLineReader();
-            var items = reader.ReadLines(filename); // not really execute here, it's just dependency
+            var items = FileHelpers.ReadLineItems(filename); // not really execute here, it's just dependency
             return new InMemoryLineSortingService(items);
         }
 
         var chunkSizeB = fileSizeB < LargeChunkFileSizeB ? MediumSortingChunkSizeB : LargeSortingChunkSizeB;
         var chunkReader = new FileChunkLineReader(filename, Constants.FileOpBufferSizeB, chunkSizeB);
-        return new FileChunkLineSortingService(chunkReader, Constants.FileOpBufferSizeB);
+        return new FileChunkLineSortingService(chunkReader);
     }
 }

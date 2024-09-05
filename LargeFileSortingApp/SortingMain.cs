@@ -11,14 +11,14 @@ var outputFile = args.Length > 1 ? args[1] : "out.txt";
     var totalWatch = System.Diagnostics.Stopwatch.StartNew();
 #endif
 
+//TODO: check that input exists
+
 var factory = new LineSortingServiceFactory();
 var service = factory.CreateService(inputFile);
 try
 {
     var sortedLines = service.GetSortedLines();
-    
-    var writer = new FileLineWriter();
-    writer.WriteLines(outputFile, sortedLines);
+    FileHelpers.WriteLineItems(outputFile, sortedLines);
 }
 finally
 {
