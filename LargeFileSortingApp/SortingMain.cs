@@ -21,6 +21,11 @@ if (!File.Exists(inputFile))
     return;
 }
 
+var outputDirName = Path.GetDirectoryName(outputFile);
+
+if (!Directory.Exists(outputDirName) && !string.IsNullOrEmpty(outputDirName))
+    Directory.CreateDirectory(outputDirName);
+
 var factory = new LineSortingServiceFactory();
 var service = factory.CreateService(inputFile);
 try
