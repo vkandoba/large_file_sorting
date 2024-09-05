@@ -4,7 +4,7 @@
     var totalWatch = System.Diagnostics.Stopwatch.StartNew();
 #endif
 
-var defaultConfigFileName = "default_config.json";
+var defaultConfigFileName = "configs/default_config.json";
 var configFileName = args.Length > 0 ? args[0] : defaultConfigFileName;
 var config = GenerateSettings.ReadFromFile(configFileName);
 

@@ -2,7 +2,7 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LargeFileSortingApp", "LargeFileSortingApp\LargeFileSortingApp.csproj", "{B0CA4288-1378-43EA-A418-14535A92D67C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LargeGenerateApp", "..\LargeGenerateApp\LargeGenerateApp\LargeGenerateApp.csproj", "{27DFAB40-B959-4E8B-B507-8C02493A4FBF}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LargeGenerateApp", "LargeGenerateApp\LargeGenerateApp.csproj", "{27DFAB40-B959-4E8B-B507-8C02493A4FBF}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LargeFileSortingTests", "LargeFileSortingTests\LargeFileSortingTests.csproj", "{BFCF57E4-AB1D-40F0-98AC-F3A496B00DB9}"
 EndProject
