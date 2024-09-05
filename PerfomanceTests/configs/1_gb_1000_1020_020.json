@@ -4,11 +4,11 @@
   "Duplicated":
   {
     "Rate": 0.2,
-    "Line": "648.мћhњнвxrтaafaдzmуџалcmrpаgџrкdхaцфbцwжvољvwepтuљsrnhdђ"
+    "Line": "648. мћhњнвxrтaafaдzmуџалcmrpаgџrкdхaцфbцwжvољvwepтuљsrnhdђ"
   },
   "Generated":
   {
     "NumberPart": {"Min":  1000000, "Max":  922337203685477580},
-    "TextPartSize": {"Min":  30, "Max":  250}
+    "TextPartSize": {"Min":  1000, "Max":  1020}
   }
 }
