@@ -13,10 +13,10 @@ public class GenerateSettings
     public double MinSizeMb { get; set; } // reason of double - generating a small file, like 0.2 MB
  
     [DataMember]
-    public LineDuplicatedSettings Duplicated { get; set; }
+    public LineDuplicatedSettings? Duplicated { get; set; }
 
     [DataMember]
-    public LineGeneratedSettings Generated { get; set; }
+    public LineGeneratedSettings? Generated { get; set; }
 
     public static GenerateSettings ReadFromFile(string configFile)
     {
@@ -38,7 +38,7 @@ public class LineDuplicatedSettings
     public double Rate { get; set; } // should be from 0 to 1
     
     [DataMember]
-    public string Line { get; set; }
+    public string? Line { get; set; }
 }
 
 [DataContract]

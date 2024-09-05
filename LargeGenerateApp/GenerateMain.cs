@@ -18,7 +18,7 @@ Console.WriteLine($"Config: {configFileName} | Seed: {config.RandomSeed} | " +
                   $"File size: {config.MinSizeMb} Mb | ");
 
 var rnd = new Random(config.RandomSeed);
-var service = new GenerateService(rnd, config.Generated.NumberPart, config.Generated.TextPartSize, config.Duplicated);
+var service = new GenerateService(rnd, config.Generated?.NumberPart, config.Generated?.TextPartSize, config.Duplicated);
 var lines=service.MakeRandomLines(config.MinSizeMb);
 
 File.WriteAllLines(fileName, lines);

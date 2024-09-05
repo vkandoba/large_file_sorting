@@ -37,7 +37,10 @@ public class GenerateService
     {
         ulong sizeInBytes = (ulong)Math.Round(totalSizeMb * MbScale);
         ulong actualSizeInBytes = 0;
-        ulong duplicatedLineSize = (ulong) Encoding.UTF8.GetByteCount(_duplicatedSettings.Line);
+
+        if (_duplicatedSettings.Line == null)
+            _duplicatedSettings.Line = "";
+        ulong duplicatedLineSize = (ulong)Encoding.UTF8.GetByteCount(_duplicatedSettings.Line);
         
         while (actualSizeInBytes < sizeInBytes)
         {
@@ -63,7 +66,7 @@ public class GenerateService
     {
         var indexes = new byte[textLen];
         _rnd.NextBytes(indexes);
-        var text = new string(indexes.Select(n => Symbols[(int)(n % Symbols.Length)]).ToArray());
+        var text = new string(indexes.Select(n => Symbols[n % Symbols.Length]).ToArray());
         
         return $"{number}.{text}";
     }
