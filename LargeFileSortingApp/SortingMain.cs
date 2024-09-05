@@ -1,8 +1,6 @@
 ﻿using LargeFileSortingApp.FileIO;
 using LargeFileSortingApp.LineSortingService;
 
-// TODO: handle exceptions
-
 var inputFile = args.Length > 0 ? args[0] : "in.txt";
 var outputFile = args.Length > 1 ? args[1] : "out.txt";
 
@@ -23,6 +21,15 @@ try
 {
     var sortedLines = service.GetSortedLines();
     FileHelpers.WriteLineItems(outputFile, sortedLines);
+}
+catch (Exception ex)
+{
+    Console.WriteLine($"File sorting app was failed: {ex.Message}");
+    
+    #if DEBUG
+        Console.WriteLine($"{ex.GetType()}");
+        Console.WriteLine($"{ex.StackTrace}");
+    #endif
 }
 finally
 {

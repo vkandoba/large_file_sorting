@@ -16,12 +16,24 @@ if (!Directory.Exists(dirName) && !string.IsNullOrEmpty(dirName))
 
 Console.WriteLine($"Config: {configFileName} | Seed: {config.RandomSeed} | " +
                   $"File size: {config.MinSizeMb} Mb | ");
+try
+{
+    var rnd = new Random(config.RandomSeed);
+    var service = new GenerateService(rnd, config.Generated?.NumberPart, config.Generated?.TextPartSize,
+        config.Duplicated);
+    var lines = service.MakeRandomLines(config.MinSizeMb);
 
-var rnd = new Random(config.RandomSeed);
-var service = new GenerateService(rnd, config.Generated?.NumberPart, config.Generated?.TextPartSize, config.Duplicated);
-var lines=service.MakeRandomLines(config.MinSizeMb);
-
-File.WriteAllLines(fileName, lines);
+    File.WriteAllLines(fileName, lines);
+}
+catch (Exception ex)
+{
+    Console.WriteLine($"Fail to generate a file: {ex.Message}");
+    
+    #if DEBUG
+        Console.WriteLine($"{ex.GetType()}");
+        Console.WriteLine($"{ex.StackTrace}");
+    #endif
+}
 
 #if DEBUG
     var execMs = totalWatch.ElapsedMilliseconds;
