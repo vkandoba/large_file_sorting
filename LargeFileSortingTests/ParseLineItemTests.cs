@@ -56,7 +56,13 @@ public class ParseLineItemTests
         Assert.That(item.StringPart.ToString(), Is.EqualTo(""));
     }    
     
-    //TODO: test for oversize number
+    [Test]
+    public void ParseLineItemWhenNumberIsTooLarge()
+    {
+        var line = "876765252426272829292725242325272828292.";
+
+        Assert.Throws<ArgumentException>(() => LineItem.Parse(line));
+    }    
 
     [Test]
     public void ParseLineItemWithoutDots()

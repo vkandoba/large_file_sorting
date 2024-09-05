@@ -34,7 +34,7 @@ public class LineItem : IComparable
 
         var numberPart = line.AsSpan(0, dotIndex);
         if (!long.TryParse(numberPart, out var  number))
-            throw new ArgumentException($"Failed to parse line: {line}. The number part is incorrect");
+            throw new ArgumentException($"Failed to parse line: {line}. The number part is incorrect long number");
         
         return new LineItem(line, number, dotIndex + 1);
     }
