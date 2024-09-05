@@ -3,12 +3,38 @@
 #if DEBUG
     var totalWatch = System.Diagnostics.Stopwatch.StartNew();
 #endif
+    
+if (args.Length < 2)
+{
+    const string usage = @"
+    usage: LargeGenerateApp config filename 
+        config:  file with generating settings 
+        filename: file to be generated;
+        
+        Config example: 
+        {
+          ""RandomSeed"": 42,
+          ""MinSizeMb"": 0.05,
+          ""Duplicated"":
+          { 
+            ""Rate"": 0.3,
+            ""Line"": ""648.мћhњнвxrтaafaдzmуџалcmrpаgџrкdхaцфbцwжvољvwepтuљsrnhdђ""
+          },
+          ""Generated"": 
+          {
+            ""NumberPart"": {""Min"":  1000000, ""Max"":  922337203685477580},
+            ""TextPartSize"": {""Min"":  30, ""Max"":  250}
+          }
+        }";
+    
+    Console.WriteLine(usage);
+    return;
+}
 
-var defaultConfigFileName = "configs/default_config.json";
-var configFileName = args.Length > 0 ? args[0] : defaultConfigFileName;
+var configFileName = args[0];
 var config = GenerateSettings.ReadFromFile(configFileName);
 
-var fileName = args.Length > 1 ? args[1] : Path.GetFileNameWithoutExtension(configFileName);
+var fileName = args[1];
 var dirName = Path.GetDirectoryName(fileName);
 
 if (!Directory.Exists(dirName) && !string.IsNullOrEmpty(dirName))
