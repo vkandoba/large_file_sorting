@@ -6,7 +6,9 @@ namespace LargeFileSortingApp.LineSortingService;
 
 public class FileChunkLineSortingService : ILineSortingService, IDisposable
 {
-    private const string TempFolderName = "tmp_dump"; // TODO: add guid to suffix
+    private const int SortingWorkerCount = 6;
+    
+    private const string TempDirectoryNamePrefix = "tmp_dump_";
 
     private readonly IFileChunkLineReader _chunkLineReader;
     
@@ -18,31 +20,23 @@ public class FileChunkLineSortingService : ILineSortingService, IDisposable
     public IEnumerable<LineItem> GetSortedLines()
     {
         var chunks = _chunkLineReader.ReadChunks();
-        
-        var chunkFiles = SortAndDumpToFiles(chunks);
-        
-        foreach (var item in MergeFiles(chunkFiles))
-        {
-            yield return item;
-        }
-        
-        foreach (var file in chunkFiles)
-        {
-            File.Delete(file);
-        }
 
-        //TODO: race condition on double run at the same time
-        if (!Directory.EnumerateFileSystemEntries(TempFolderName).Any())
+        var tempDir = FileHelpers.CreateTempDirectory(TempDirectoryNamePrefix);
+        try
         {
-            Directory.Delete(TempFolderName);
+            var chunkFiles = SortAndDumpToFiles(chunks, tempDir);
+            return MergeFiles(chunkFiles);
+        }
+        finally
+        {
+            FileHelpers.CleanupDirectoryWithContent(tempDir);
         }
     }
 
-    private string[] SortAndDumpToFiles(IEnumerable<LineItem[]> chunks)
+    private string[] SortAndDumpToFiles(IEnumerable<LineItem[]> chunks, string dumpDir)
     {
-        var producerCount = 6;
-        var sortedChunkBlockedQueue = new BlockingCollection<LineItem[]>(producerCount);
-        var partsToSort = chunks.Chunk(producerCount);
+        var sortedChunkBlockedQueue = new BlockingCollection<LineItem[]>(SortingWorkerCount);
+        var partsToSort = chunks.Chunk(SortingWorkerCount);
         
         var sortWorkerTasks = new List<Task>();
         foreach (var part in partsToSort)
@@ -62,14 +56,10 @@ public class FileChunkLineSortingService : ILineSortingService, IDisposable
         {
             var files = new List<string>();
             
-            if (!Directory.Exists(TempFolderName))
-                Directory.CreateDirectory(TempFolderName);
-            
             do
             {
                 var sortedChunk = sortedChunkBlockedQueue.Take();
-                var uniqueName = Guid.NewGuid().ToString(); // TODO: handle collision
-                var dumpFile = Path.Combine(TempFolderName, uniqueName);
+                var dumpFile = FileHelpers.GenerateUniqueFileName(dumpDir);
                 FileHelpers.WriteLineItems(dumpFile, sortedChunk);
                 files.Add(dumpFile);
             } while (!sortedChunkBlockedQueue.IsAddingCompleted || sortedChunkBlockedQueue.Count > 0);

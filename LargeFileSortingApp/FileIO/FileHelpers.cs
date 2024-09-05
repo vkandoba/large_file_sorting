@@ -25,4 +25,34 @@ public static class FileHelpers
             writer.WriteLine(item.Line);
         }
     }
+
+    public static string CreateTempDirectory(string prefix)
+    {
+        string? name;
+        do
+        {
+            var uniqueSuffix = Guid.NewGuid().ToString();
+            name = prefix + uniqueSuffix;
+        } while (Directory.Exists(name));
+
+        Directory.CreateDirectory(name);
+        return name;
+    }
+
+    public static void CleanupDirectoryWithContent(string name)
+    {
+        Directory.Delete(name, true);
+    }
+
+    public static string GenerateUniqueFileName(string dir)
+    {
+        string filename;
+        do
+        {
+            var unique = Guid.NewGuid().ToString();
+            filename = Path.Combine(dir, unique);
+        } while (File.Exists(filename));
+
+        return filename;
+    }
 }
