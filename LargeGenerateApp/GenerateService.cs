@@ -68,6 +68,6 @@ public class GenerateService
         _rnd.NextBytes(indexes);
         var text = new string(indexes.Select(n => Symbols[n % Symbols.Length]).ToArray());
         
-        return $"{number}.{text}";
+        return $"{number}. {text}";
     }
 }

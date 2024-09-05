@@ -1,3 +1,7 @@
+### Task
+
+Sorting lines from a too large file, where each line is a "[Number]. [String]"
+
 ### Build and run
 
 By make and bash-like env:
