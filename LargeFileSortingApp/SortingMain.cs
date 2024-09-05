@@ -33,8 +33,7 @@ catch (Exception ex)
     Console.WriteLine($"File sorting app was failed: {ex.Message}");
     
     #if DEBUG
-        Console.WriteLine($"{ex.GetType()}");
-        Console.WriteLine($"{ex.StackTrace}");
+        throw;
     #endif
 }
 finally

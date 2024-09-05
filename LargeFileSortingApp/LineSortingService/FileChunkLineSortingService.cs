@@ -1,4 +1,5 @@
 using System.Collections.Concurrent;
+using System.Net.Http.Headers;
 using LargeFileSortingApp.FileIO;
 using LargeFileSortingApp.Utils;
 
@@ -25,6 +26,7 @@ public class FileChunkLineSortingService : ILineSortingService, IDisposable
         try
         {
             var chunkFiles = SortAndDumpToFiles(chunks, tempDir);
+            Console.WriteLine("dump done"); 
             foreach (var item in MergeFiles(chunkFiles))
                 yield return item;
         }
@@ -36,19 +38,41 @@ public class FileChunkLineSortingService : ILineSortingService, IDisposable
 
     private string[] SortAndDumpToFiles(IEnumerable<LineItem[]> chunks, string dumpDir)
     {
+        var chunkBlockedQueue = new BlockingCollection<LineItem[]>(SortingWorkerCount);
         var sortedChunkBlockedQueue = new BlockingCollection<LineItem[]>(SortingWorkerCount);
-        var partsToSort = chunks.Chunk(SortingWorkerCount);
         
+        Task.Factory.StartNew(() =>
+        {
+            try
+            {
+                foreach (var chunk in chunks)
+                    chunkBlockedQueue.Add(chunk);
+            }
+            finally
+            {
+                chunkBlockedQueue.CompleteAdding();
+            }
+        });
+    
         var sortWorkerTasks = new List<Task>();
-        foreach (var part in partsToSort)
+        for (int i = 0; i < SortingWorkerCount; ++i)
         {
             var sortWorkerTask = Task.Factory.StartNew(() =>
             {
-                foreach (var chunk in part)
+                do
                 {
-                    var sortedChunk = chunk.SortInMemory();
-                    sortedChunkBlockedQueue.Add(sortedChunk);
-                }
+                    try
+                    {
+                        var chunkToSort = chunkBlockedQueue.Take();
+                        var sortedChunk = chunkToSort.SortInMemory();
+                        sortedChunkBlockedQueue.Add(sortedChunk);
+                    }
+                    catch (InvalidOperationException)
+                    {
+                        if (!chunkBlockedQueue.IsAddingCompleted) // was raised from take because read was done
+                            throw;
+                    }
+                } while (!chunkBlockedQueue.IsAddingCompleted || chunkBlockedQueue.Count > 0);
             });
             sortWorkerTasks.Add(sortWorkerTask);
         }
@@ -56,21 +80,21 @@ public class FileChunkLineSortingService : ILineSortingService, IDisposable
         var dumpToFileWorkerTask = Task.Factory.StartNew<string[]>(() =>
         {
             var files = new List<string>();
-            
             do
             {
                 var sortedChunk = sortedChunkBlockedQueue.Take();
                 var dumpFile = FileHelpers.GenerateUniqueFileName(dumpDir);
                 FileHelpers.WriteLineItems(dumpFile, sortedChunk);
+                Console.WriteLine("write chunk");                            
                 files.Add(dumpFile);
             } while (!sortedChunkBlockedQueue.IsAddingCompleted || sortedChunkBlockedQueue.Count > 0);
-
+            
+            Console.WriteLine($"Write Task done");
             return files.ToArray();
         });
-        
+
         Task.WaitAll(sortWorkerTasks.ToArray());
         sortedChunkBlockedQueue.CompleteAdding();
-
         return dumpToFileWorkerTask.Result;
     }
     
