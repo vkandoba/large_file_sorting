@@ -92,14 +92,14 @@ The config example, that specifies file size:
 
 * Just in-memory sorting for files less than 512 MB
 
-[SortingServiceFactory] (https://github.com/vkandoba/large_file_sorting/blob/main/LargeFileSortingApp/LineSortingService/LineSortingServiceFactory.cs#L25)
+[SortingServiceFactory](https://github.com/vkandoba/large_file_sorting/blob/main/LargeFileSortingApp/LineSortingService/LineSortingServiceFactory.cs#L25)
 
 * File r/w buffer size is 64 Kb
 
-[FileIO.Constants] (https://github.com/vkandoba/large_file_sorting/blob/main/LargeFileSortingApp/FileIO/Constants.cs#L5)
+[FileIO.Constants](https://github.com/vkandoba/large_file_sorting/blob/main/LargeFileSortingApp/FileIO/Constants.cs#L5)
 
 * Concurrent chunk sorting and writing
 
-[SortAndDumpToFiles] (https://github.com/vkandoba/large_file_sorting/blob/main/LargeFileSortingApp/LineSortingService/FileChunkLineSortingService.cs#L46)
+[SortAndDumpToFiles](https://github.com/vkandoba/large_file_sorting/blob/main/LargeFileSortingApp/LineSortingService/FileChunkLineSortingService.cs#L46)
 
-[StartConsumersForBlockedQueue] (https://github.com/vkandoba/large_file_sorting/blob/main/LargeFileSortingApp/Utils/ConcurrentHelpers.cs#L19)
+[StartConsumersForBlockedQueue](https://github.com/vkandoba/large_file_sorting/blob/main/LargeFileSortingApp/Utils/ConcurrentHelpers.cs#L19)
