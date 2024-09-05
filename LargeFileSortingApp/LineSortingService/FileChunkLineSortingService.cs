@@ -8,6 +8,8 @@ public class FileChunkLineSortingService : ILineSortingService, IDisposable
 {
     private const int SortingWorkerCount = 6;
     
+    private const int DumpWorkerCount = 4;
+    
     private const string TempDirectoryNamePrefix = "tmp_dump_";
 
     private readonly IFileChunkLineReader _chunkLineReader;
@@ -39,58 +41,47 @@ public class FileChunkLineSortingService : ILineSortingService, IDisposable
         var chunkBlockedQueue = new BlockingCollection<LineItem[]>(SortingWorkerCount);
         var sortedChunkBlockedQueue = new BlockingCollection<LineItem[]>(SortingWorkerCount);
         
-        Task.Factory.StartNew(() =>
-        {
-            try
-            {
-                foreach (var chunk in chunks)
-                    chunkBlockedQueue.Add(chunk);
-            }
-            finally
-            {
-                chunkBlockedQueue.CompleteAdding();
-            }
-        });
-    
-        var sortWorkerTasks = new List<Task>();
-        for (int i = 0; i < SortingWorkerCount; ++i)
-        {
-            var sortWorkerTask = Task.Factory.StartNew(() =>
-            {
-                do
-                {
-                    try
-                    {
-                        var chunkToSort = chunkBlockedQueue.Take();
-                        var sortedChunk = chunkToSort.SortInMemory();
-                        sortedChunkBlockedQueue.Add(sortedChunk);
-                    }
-                    catch (InvalidOperationException)
-                    {
-                        if (!chunkBlockedQueue.IsAddingCompleted) // was raised from Take() because read worker have done
-                            throw;
-                    }
-                } while (!chunkBlockedQueue.IsAddingCompleted || chunkBlockedQueue.Count > 0);
-            });
-            sortWorkerTasks.Add(sortWorkerTask);
-        }
+        Task.Factory.StartNew(() => ProduceChunksToBlockedQueue(chunks, chunkBlockedQueue));
 
-        var dumpToFileWorkerTask = Task.Factory.StartNew<string[]>(() =>
+        var sortWorkerTasks = ConcurrentHelpers.StartConsumersForBlockedQueue(
+            chunkBlockedQueue, SortingWorkerCount, chunk =>
         {
-            var files = new List<string>();
-            
-            foreach(var sortedChunk in sortedChunkBlockedQueue.GetConsumingEnumerable())
+            var sortedChunk = chunk.SortInMemory();
+            sortedChunkBlockedQueue.Add(sortedChunk);
+        });
+
+        var dumpWorkerTasks = ConcurrentHelpers.StartConsumersForBlockedQueue(
+            sortedChunkBlockedQueue, DumpWorkerCount, sortedChunk =>
             {
                 var dumpFile = FileHelpers.GenerateUniqueFileName(dumpDir);
                 FileHelpers.WriteLineItems(dumpFile, sortedChunk);
-                files.Add(dumpFile);
+                return dumpFile;
             }
-            return files.ToArray();
-        });
+        );
 
         Task.WaitAll(sortWorkerTasks.ToArray());
         sortedChunkBlockedQueue.CompleteAdding();
-        return dumpToFileWorkerTask.Result;
+        
+        var files = new List<string>();
+        foreach (var dumpTask in dumpWorkerTasks)
+        {
+            var dumpFiles = dumpTask.Result;
+            files.AddRange(dumpFiles);
+        }
+        return files.ToArray();
+    }
+
+    private void ProduceChunksToBlockedQueue(IEnumerable<LineItem[]> chunks, BlockingCollection<LineItem[]> chunkQueue)
+    {
+        try
+        {
+            foreach (var chunk in chunks)
+                chunkQueue.Add(chunk);
+        }
+        finally
+        {
+            chunkQueue.CompleteAdding();
+        }        
     }
     
     private IEnumerable<LineItem> MergeFiles(string[] filenames)
@@ -125,7 +116,7 @@ public class FileChunkLineSortingService : ILineSortingService, IDisposable
                 fileIterators.Dispose();
         }
     }
-
+    
     public void Dispose()
     {
         _chunkLineReader.Dispose();
