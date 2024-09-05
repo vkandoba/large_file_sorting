@@ -1,5 +1,4 @@
 using System.Collections.Concurrent;
-using System.Net.Http.Headers;
 using LargeFileSortingApp.FileIO;
 using LargeFileSortingApp.Utils;
 
@@ -68,7 +67,7 @@ public class FileChunkLineSortingService : ILineSortingService, IDisposable
                     }
                     catch (InvalidOperationException)
                     {
-                        if (!chunkBlockedQueue.IsAddingCompleted) // was raised from take because read was done
+                        if (!chunkBlockedQueue.IsAddingCompleted) // was raised from Take() because read worker have done
                             throw;
                     }
                 } while (!chunkBlockedQueue.IsAddingCompleted || chunkBlockedQueue.Count > 0);
