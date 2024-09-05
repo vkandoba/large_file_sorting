@@ -11,7 +11,11 @@ var outputFile = args.Length > 1 ? args[1] : "out.txt";
     var totalWatch = System.Diagnostics.Stopwatch.StartNew();
 #endif
 
-//TODO: check that input exists
+if (!File.Exists(inputFile))
+{
+    Console.WriteLine($"Input file {inputFile} not found");
+    return;
+}
 
 var factory = new LineSortingServiceFactory();
 var service = factory.CreateService(inputFile);
