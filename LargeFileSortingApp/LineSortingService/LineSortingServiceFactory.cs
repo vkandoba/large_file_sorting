@@ -15,8 +15,7 @@ public class LineSortingServiceFactory : ILineSortingServiceFactory
 
     private const int MediumSortingChunkSizeB =  128 * 1024 * 1024; // 128 MB
 
-    private const int LargeSortingChunkSizeB =  512 * 1024 * 1024; // 512 MB
-
+    private const int LargeSortingChunkSizeB =  256 * 1024 * 1024; // 256 MB
     
     public ILineSortingService CreateService(string filename)
     {

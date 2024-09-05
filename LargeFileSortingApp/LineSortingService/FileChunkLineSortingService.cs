@@ -25,7 +25,8 @@ public class FileChunkLineSortingService : ILineSortingService, IDisposable
         try
         {
             var chunkFiles = SortAndDumpToFiles(chunks, tempDir);
-            return MergeFiles(chunkFiles);
+            foreach (var item in MergeFiles(chunkFiles))
+                yield return item;
         }
         finally
         {
@@ -104,7 +105,6 @@ public class FileChunkLineSortingService : ILineSortingService, IDisposable
             foreach (var fileIterators in fileToIterators.Values)
                 fileIterators.Dispose();
         }
-
     }
 
     public void Dispose()
