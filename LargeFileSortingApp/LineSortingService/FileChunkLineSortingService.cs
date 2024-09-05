@@ -26,7 +26,6 @@ public class FileChunkLineSortingService : ILineSortingService, IDisposable
         try
         {
             var chunkFiles = SortAndDumpToFiles(chunks, tempDir);
-            Console.WriteLine("dump done"); 
             foreach (var item in MergeFiles(chunkFiles))
                 yield return item;
         }
@@ -80,16 +79,13 @@ public class FileChunkLineSortingService : ILineSortingService, IDisposable
         var dumpToFileWorkerTask = Task.Factory.StartNew<string[]>(() =>
         {
             var files = new List<string>();
-            do
+            
+            foreach(var sortedChunk in sortedChunkBlockedQueue.GetConsumingEnumerable())
             {
-                var sortedChunk = sortedChunkBlockedQueue.Take();
                 var dumpFile = FileHelpers.GenerateUniqueFileName(dumpDir);
                 FileHelpers.WriteLineItems(dumpFile, sortedChunk);
-                Console.WriteLine("write chunk");                            
                 files.Add(dumpFile);
-            } while (!sortedChunkBlockedQueue.IsAddingCompleted || sortedChunkBlockedQueue.Count > 0);
-            
-            Console.WriteLine($"Write Task done");
+            }
             return files.ToArray();
         });
 
