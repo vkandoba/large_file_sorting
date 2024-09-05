@@ -1,8 +1,30 @@
-### Task
+## Task
 
-Sorting lines from a too large file, where each line is a "[Number]. [String]"
+Sort lines from a large file, where each line is a "[Number]. [String]".
 
-### Build and run
+Ordering criteria: String part is compared first, if it matches then
+Number.
+
+For example:
+```
+For example:
+415. Apple
+30432. Something something something
+1. Apple
+32. Cherry is the best
+2. Banana is yellow
+```
+
+Output should be:
+```
+1. Apple
+415. Apple
+2. Banana is yellow
+32. Cherry is the best
+30432. Something something something
+```
+
+## Build and run
 
 By make and bash-like env:
 ````
@@ -15,7 +37,7 @@ dotnet publish LargeFileSortingApp/LargeFileSortingApp.csproj -o ./bin -c Releas
 dotnet ./bin/LargeFileSortingApp.dll [input_file] [output_file]
 ````
 
-### Generate test
+## Generate test
 
 By make and bash-like env:
 ````
@@ -45,8 +67,39 @@ The config example, that specifies file size:
 }
 ```
 
-### Algorithm
 
-1. Split to chunks and in-memory sorting 
-2. Dump chunks to disk
-3. k-Way Merge chunks
+[GeneratingMain](https://github.com/vkandoba/large_file_sorting/blob/main/LargeFileSortingApp/LineSortingService/FileChunkLineSortingService.cs#L92)
+
+[GenerateService.MakeRandomLines](https://github.com/vkandoba/large_file_sorting/blob/main/LargeGenerateApp/GenerateService.cs#L45)
+
+## Solution
+
+* Split file to chunks and in-memory sorting for each
+
+[ReadChunks](https://github.com/vkandoba/large_file_sorting/blob/main/LargeFileSortingApp/FileIO/FileChunkLineReader.cs#L26)
+
+[SortInMemory](https://github.com/vkandoba/large_file_sorting/blob/main/LargeFileSortingApp/Utils/EnumerableExtension.cs#L5)
+
+* Dump chunks to files on a disk
+
+[SortAndDumpToFiles](https://github.com/vkandoba/large_file_sorting/blob/main/LargeFileSortingApp/LineSortingService/FileChunkLineSortingService.cs#L57)
+
+* K-way merge files by a priority queue in memory
+
+[MergeFiles](https://github.com/vkandoba/large_file_sorting/blob/main/LargeFileSortingApp/LineSortingService/FileChunkLineSortingService.cs#L92)
+
+### Optimizations
+
+* Just in-memory sorting for files less than 512 MB
+
+[SortingServiceFactory] (https://github.com/vkandoba/large_file_sorting/blob/main/LargeFileSortingApp/LineSortingService/LineSortingServiceFactory.cs#L25)
+
+* File r/w buffer size is 64 Kb
+
+[FileIO.Constants] (https://github.com/vkandoba/large_file_sorting/blob/main/LargeFileSortingApp/FileIO/Constants.cs#L5)
+
+* Concurrent chunk sorting and writing
+
+[SortAndDumpToFiles] (https://github.com/vkandoba/large_file_sorting/blob/main/LargeFileSortingApp/LineSortingService/FileChunkLineSortingService.cs#L46)
+
+[StartConsumersForBlockedQueue] (https://github.com/vkandoba/large_file_sorting/blob/main/LargeFileSortingApp/Utils/ConcurrentHelpers.cs#L19)
