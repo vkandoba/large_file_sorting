@@ -8,8 +8,6 @@ public class FileChunkLineSortingService : ILineSortingService, IDisposable
 {
     private const int SortingWorkerCount = 6;
     
-    private const int DumpWorkerCount = 4;
-    
     private const string TempDirectoryNamePrefix = "tmp_dump_";
 
     private readonly IFileChunkLineReader _chunkLineReader;
@@ -50,25 +48,24 @@ public class FileChunkLineSortingService : ILineSortingService, IDisposable
             sortedChunkBlockedQueue.Add(sortedChunk);
         });
 
-        var dumpWorkerTasks = ConcurrentHelpers.StartConsumersForBlockedQueue(
-            sortedChunkBlockedQueue, DumpWorkerCount, sortedChunk =>
+        var dumpToFileWorkerTask = Task.Factory.StartNew<string[]>(() =>
+        {
+            var files = new List<string>();
+            do
             {
+                var sortedChunk = sortedChunkBlockedQueue.Take();
                 var dumpFile = FileHelpers.GenerateUniqueFileName(dumpDir);
                 FileHelpers.WriteLineItems(dumpFile, sortedChunk);
-                return dumpFile;
-            }
-        );
+                files.Add(dumpFile);
+            } while (!sortedChunkBlockedQueue.IsAddingCompleted || sortedChunkBlockedQueue.Count > 0);
+
+            return files.ToArray();
+        });
 
         Task.WaitAll(sortWorkerTasks.ToArray());
         sortedChunkBlockedQueue.CompleteAdding();
         
-        var files = new List<string>();
-        foreach (var dumpTask in dumpWorkerTasks)
-        {
-            var dumpFiles = dumpTask.Result;
-            files.AddRange(dumpFiles);
-        }
-        return files.ToArray();
+        return dumpToFileWorkerTask.Result.ToArray();
     }
 
     private void ProduceChunksToBlockedQueue(IEnumerable<LineItem[]> chunks, BlockingCollection<LineItem[]> chunkQueue)
