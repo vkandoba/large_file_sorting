@@ -1,4 +1,5 @@
 using System.Collections.Concurrent;
+using System.Threading.Channels;
 using LargeFileSortingApp.FileIO;
 using LargeFileSortingApp.Utils;
 
@@ -19,7 +20,7 @@ public class FileChunkLineSortingService : ILineSortingService, IDisposable
         _chunkLineReader = chunkLineReader;
     }
 
-    public IEnumerable<LineItem> GetSortedLines()
+    public async IAsyncEnumerable<LineItem> GetSortedLines()
     {
         var chunks = _chunkLineReader.ReadChunks();
 
@@ -27,7 +28,7 @@ public class FileChunkLineSortingService : ILineSortingService, IDisposable
         try
         {
             var chunkFiles = SortAndDumpToFiles(chunks, tempDir);
-            foreach (var item in MergeFiles(chunkFiles))
+            await foreach (var item in MergeFiles(chunkFiles))
                 yield return item;
         }
         finally
@@ -36,31 +37,31 @@ public class FileChunkLineSortingService : ILineSortingService, IDisposable
         }
     }
 
-    private string[] SortAndDumpToFiles(IEnumerable<LineItem[]> chunks, string dumpDir)
+    private string[] SortAndDumpToFiles(IAsyncEnumerable<LineItem[]> chunks, string dumpDir)
     {
-        var chunkBlockedQueue = new BlockingCollection<LineItem[]>(SortingWorkerCount);
-        var sortedChunkBlockedQueue = new BlockingCollection<LineItem[]>(SortingWorkerCount);
+        var chunkBlockedQueue = Channel.CreateBounded<LineItem[]>(SortingWorkerCount);
+        var sortedChunkBlockedQueue = Channel.CreateBounded<LineItem[]>(SortingWorkerCount);
         
-        Task.Factory.StartNew(() => ProduceChunksToBlockedQueue(chunks, chunkBlockedQueue));
+        ProduceChunksToBlockedQueue(chunks, chunkBlockedQueue);
 
         var sortWorkerTasks = ConcurrentHelpers.StartConsumersForBlockedQueue(
-            chunkBlockedQueue, SortingWorkerCount, chunk =>
+            chunkBlockedQueue, SortingWorkerCount, async chunk =>
         {
             var sortedChunk = chunk.SortInMemory();
-            sortedChunkBlockedQueue.Add(sortedChunk);
+            await sortedChunkBlockedQueue.Writer.WriteAsync(sortedChunk);
         });
 
         var dumpWorkerTasks = ConcurrentHelpers.StartConsumersForBlockedQueue(
-            sortedChunkBlockedQueue, DumpWorkerCount, sortedChunk =>
+            sortedChunkBlockedQueue, DumpWorkerCount, async sortedChunk =>
             {
                 var dumpFile = FileHelpers.GenerateUniqueFileName(dumpDir);
-                FileHelpers.WriteLineItems(dumpFile, sortedChunk);
+                await FileHelpers.WriteLineItems(dumpFile, sortedChunk.ToAsyncEnumerable());
                 return dumpFile;
             }
         );
 
         Task.WaitAll(sortWorkerTasks.ToArray());
-        sortedChunkBlockedQueue.CompleteAdding();
+        sortedChunkBlockedQueue.Writer.Complete();
         
         var files = new List<string>();
         foreach (var dumpTask in dumpWorkerTasks)
@@ -71,30 +72,32 @@ public class FileChunkLineSortingService : ILineSortingService, IDisposable
         return files.ToArray();
     }
 
-    private void ProduceChunksToBlockedQueue(IEnumerable<LineItem[]> chunks, BlockingCollection<LineItem[]> chunkQueue)
+    private async Task ProduceChunksToBlockedQueue(IAsyncEnumerable<LineItem[]> chunks, Channel<LineItem[]> chunkQueue)
     {
         try
         {
-            foreach (var chunk in chunks)
-                chunkQueue.Add(chunk);
+            await foreach (var chunk in chunks)
+            {
+                await chunkQueue.Writer.WriteAsync(chunk);
+            }
         }
         finally
         {
-            chunkQueue.CompleteAdding();
+            chunkQueue.Writer.Complete();
         }        
     }
     
-    private IEnumerable<LineItem> MergeFiles(string[] filenames)
+    private async IAsyncEnumerable<LineItem> MergeFiles(string[] filenames)
     {
-        var fileToIterators = new Dictionary<string, IEnumerator<LineItem>>();
+        var fileToIterators = new Dictionary<string, IAsyncEnumerator<LineItem>>();
         try
         {
             var heap = new PriorityQueue<string, LineItem>();
             foreach (var filename in filenames)
             {
                 string.Intern(filename);
-                var fileEnumerator = FileHelpers.ReadLineItems(filename).GetEnumerator();
-                if (fileEnumerator.MoveNext())
+                var fileEnumerator = FileHelpers.ReadLineItems(filename).GetAsyncEnumerator();
+                if (await fileEnumerator.MoveNextAsync())
                 {   
                     heap.Enqueue(filename, fileEnumerator.Current);
                     fileToIterators[filename] = fileEnumerator;
@@ -106,14 +109,14 @@ public class FileChunkLineSortingService : ILineSortingService, IDisposable
                 yield return item;
 
                 var iterator = fileToIterators[sourceFile];
-                if (iterator.MoveNext())
+                if (await iterator.MoveNextAsync())
                     heap.Enqueue(sourceFile, iterator.Current);
             }
         }
         finally
         {
             foreach (var fileIterators in fileToIterators.Values)
-                fileIterators.Dispose();
+                fileIterators.DisposeAsync();
         }
     }
     

@@ -1,52 +1,46 @@
 using System.Collections.Concurrent;
+using System.Threading.Channels;
 
 namespace LargeFileSortingApp.Utils;
 
 public static class ConcurrentHelpers
 {
     public static Task[] StartConsumersForBlockedQueue<TItem>(
-        BlockingCollection<TItem> blockingCollection,
+        Channel<TItem> blockingCollection,
         int consumersCount,
         Action<TItem> itemHandler)
     {
         return StartConsumersForBlockedQueue(blockingCollection, consumersCount, item =>
         {
             itemHandler(item);
-            return 0;
+            return Task.FromResult(0);
         });
     }
     
     public static Task<TResult[]>[] StartConsumersForBlockedQueue<TItem, TResult>(
-        BlockingCollection<TItem> blockingCollection, 
+        Channel<TItem> blockingCollection, 
         int consumersCount, 
-        Func<TItem, TResult> itemHandler)
+        Func<TItem, Task<TResult>> itemHandler)
     {
         var workerTasks = new List<Task<TResult[]>>();
         for (int i = 0; i < consumersCount; ++i)
         {
-            var workerTask = Task.Factory.StartNew(() =>
+            var workerTask = async () =>
             {
                 List<TResult> results = new List<TResult>();
-                do
+                while (await blockingCollection.Reader.WaitToReadAsync())
                 {
-                    try
+                    if (blockingCollection.Reader.TryRead(out var item))
                     {
-                        var item = blockingCollection.Take();
-                        var handleResult = itemHandler(item);
+                        var handleResult = await itemHandler(item);
                         results.Add(handleResult);
                     }
-                    catch (InvalidOperationException)
-                    {
-                        if (!blockingCollection.IsAddingCompleted) // was raised from Take() because producers have done
-                            throw;
-                    }
-                } while (!blockingCollection.IsAddingCompleted || blockingCollection.Count > 0);
+                }
 
                 return results.ToArray();
-            });
-            workerTasks.Add(workerTask);
+            };
+            workerTasks.Add(workerTask());
         }
         return workerTasks.ToArray();
     }
-    
 }

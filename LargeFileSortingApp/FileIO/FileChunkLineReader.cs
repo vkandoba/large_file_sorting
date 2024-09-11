@@ -18,12 +18,12 @@ public class FileChunkLineReader : IFileChunkLineReader
         _chunkSizeB = chunkSizeB;
     }
 
-    public IEnumerable<LineItem[]> ReadChunks()
+    public async IAsyncEnumerable<LineItem[]> ReadChunks()
     {
         IList<LineItem> current = new List<LineItem>(_chunkSizeB / (2 * 1024));
         var lastPos = _reader.BaseStream.Position;
         string? line;
-        while ((line = _reader.ReadLine()) != null)
+        while ((line = await _reader.ReadLineAsync()) != null)
         {
             var item = LineItem.Parse(line);
             current.Add(item);

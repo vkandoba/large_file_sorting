@@ -11,5 +11,9 @@ public class InMemoryLineSortingService : ILineSortingService
         _itemsToSort = itemsToSort;
     }
 
-    public IEnumerable<LineItem> GetSortedLines() => _itemsToSort.SortInMemory();
+    public async IAsyncEnumerable<LineItem> GetSortedLines()
+    {
+        foreach (var item in _itemsToSort)
+            yield return item;
+    }
 }

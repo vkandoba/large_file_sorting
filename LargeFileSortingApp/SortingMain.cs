@@ -31,7 +31,7 @@ var service = factory.CreateService(inputFile);
 try
 {
     var sortedLines = service.GetSortedLines();
-    FileHelpers.WriteLineItems(outputFile, sortedLines);
+    await FileHelpers.WriteLineItems(outputFile, sortedLines);
 }
 catch (Exception ex)
 {

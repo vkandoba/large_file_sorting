@@ -2,5 +2,5 @@ namespace LargeFileSortingApp.LineSortingService;
 
 public interface ILineSortingService
 {
-    IEnumerable<LineItem> GetSortedLines();
+    IAsyncEnumerable<LineItem> GetSortedLines();
 }
