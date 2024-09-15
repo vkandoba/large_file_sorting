@@ -4,6 +4,19 @@ namespace LargeFileSortingApp.FileIO;
 
 public static class FileHelpers
 {
+    public static async IAsyncEnumerable<LineItem> ReadLineItemsAsync(string file, int bufferSize = Constants.FileOpBufferSizeB)
+    {
+        await using var stream = File.OpenRead(file);
+        using var reader = new StreamReader(stream, Encoding.UTF8, bufferSize: bufferSize);
+
+        string? line;
+        
+        while ((line = await reader.ReadLineAsync()) != null)
+        {
+            yield return LineItem.Parse(line);
+        }
+    }
+    
     public static IEnumerable<LineItem> ReadLineItems(string file, int bufferSize = Constants.FileOpBufferSizeB)
     {
         using var stream = File.OpenRead(file);

@@ -22,25 +22,25 @@ public class ProcessFilePerfomanceTests
     }
 
     [Test]
-    public void TestReadAllLines()
+    public void TestFileReadAllLines()
     {
         Utils.MeasureTime(() =>
         {
             var lines = File.ReadAllLines(file);
             long sum = lines.Select(LineItem.Parse).Select(x => (long)x.StringPart.Length).Sum();
             Assert.That(sum, Is.EqualTo(__CHECK_SUM));
-        }, time => Console.Error.WriteLine($"ReadAllLines: {time} ms"));
+        }, time => Console.Error.WriteLine($"{nameof(TestFileReadAllLines)}: {time} ms"));
     }
 
     [Test]
-    public void TestReadLines()
+    public void TestFileReadLines()
     {
         Utils.MeasureTime(() =>
         {
             var lines = File.ReadLines(file);
             long sum = lines.Select(LineItem.Parse).Select(x => (long)x.StringPart.Length).Sum();
             Assert.That(sum, Is.EqualTo(__CHECK_SUM));
-        }, time => Console.Error.WriteLine($"ReadLines: {time} ms"));
+        }, time => Console.Error.WriteLine($"{nameof(TestFileReadLines)}: {time} ms"));
     }
 
     [Test]
@@ -50,7 +50,22 @@ public class ProcessFilePerfomanceTests
         {
             var sum = FileHelpers.ReadLineItems(file).Select(x => (long)x.StringPart.Length).Sum();
             Assert.That(sum, Is.EqualTo(__CHECK_SUM));
-        }, time => Console.Error.WriteLine($"{nameof(FileHelpers.ReadLineItems)}: {time} ms"));
+        }, time => Console.Error.WriteLine($"{nameof(TestReadItems)}: {time} ms"));
+    }
+    
+    [Test]
+    public async Task TestReadItemsAsync()
+    {
+        await Utils.MeasureTime(async () =>
+        {
+            var items = FileHelpers.ReadLineItemsAsync(file);
+            long sum = 0;
+            await foreach (var item in items)
+            {
+                sum += item.StringPart.Length;
+            }
+            Assert.That(sum, Is.EqualTo(__CHECK_SUM));
+        }, time => Console.Error.WriteLine($"{nameof(TestReadItemsAsync)}: {time} ms"));
     }
 
     [Test]
