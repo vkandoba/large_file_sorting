@@ -9,6 +9,7 @@ namespace LargeFileSortingTests;
 public class ProcessFilePerfomanceTests
 {
     private string file;
+    private const long __CHECK_SUM = 374743629;
 
     [OneTimeSetUp]
     public void Init()
@@ -26,11 +27,20 @@ public class ProcessFilePerfomanceTests
         Utils.MeasureTime(() =>
         {
             var lines = File.ReadAllLines(file);
-            foreach (var line in lines)
-            {
-                LineItem.Parse(line);
-            }
+            long sum = lines.Select(LineItem.Parse).Select(x => (long)x.StringPart.Length).Sum();
+            Assert.That(sum, Is.EqualTo(__CHECK_SUM));
         }, time => Console.Error.WriteLine($"ReadAllLines: {time} ms"));
+    }
+
+    [Test]
+    public void TestReadLines()
+    {
+        Utils.MeasureTime(() =>
+        {
+            var lines = File.ReadLines(file);
+            long sum = lines.Select(LineItem.Parse).Select(x => (long)x.StringPart.Length).Sum();
+            Assert.That(sum, Is.EqualTo(__CHECK_SUM));
+        }, time => Console.Error.WriteLine($"ReadLines: {time} ms"));
     }
 
     [Test]
@@ -38,10 +48,8 @@ public class ProcessFilePerfomanceTests
     {
         Utils.MeasureTime(() =>
         {
-            var items = FileHelpers.ReadLineItems(file);
-            foreach (var item in items)
-            {
-            }
+            var sum = FileHelpers.ReadLineItems(file).Select(x => (long)x.StringPart.Length).Sum();
+            Assert.That(sum, Is.EqualTo(__CHECK_SUM));
         }, time => Console.Error.WriteLine($"{nameof(FileHelpers.ReadLineItems)}: {time} ms"));
     }
 
@@ -50,14 +58,14 @@ public class ProcessFilePerfomanceTests
     {
         Utils.MeasureTime(() =>
         {
-            using var reader = new FileChunkLineReader(file, Constants.FileOpBufferSizeB, 128 * 1024 * 1024);
+            long sum = 0;
+            using var reader = new FileChunkLineReader(file, Constants.FileOpBufferSizeB, 64 * 1024 * 1024);
             var chunks = reader.ReadChunks();
             foreach (var chunk in chunks)
             {
-                foreach (var item in chunk)
-                {
-                }
+                sum += chunk.Select(item => (long)item.StringPart.Length).Sum();
             }
+            Assert.That(sum, Is.EqualTo(__CHECK_SUM));
         }, time => Console.Error.WriteLine($"{nameof(FileChunkLineReader)}: {time} ms"));
     }
 
